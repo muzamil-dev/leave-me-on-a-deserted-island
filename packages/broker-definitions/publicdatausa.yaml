@@ -1,0 +1,27 @@
+id: publicdatausa
+name: PublicDataUSA
+base_url: https://publicdatausa.com
+opt_out_url: https://publicdatausa.com/opt-out.php
+method: form
+captcha: none
+confirm_email: true
+recheck_days: 90
+search_steps:
+  - action: navigate
+    url: "https://publicdatausa.com/results.php?fn={{profile.first_name}}&ln={{profile.last_name}}&city={{profile.city}}&state={{profile.state}}"
+  - action: wait_for
+    selector: ".results"
+find_indicator:
+  type: text_contains
+  value: "results found"
+steps:
+  - action: navigate
+    url: "https://publicdatausa.com/opt-out.php"
+  - action: fill
+    selector: "input[name='email']"
+    value: "{{profile.email}}"
+  - action: click
+    selector: "button[type='submit']"
+success_indicator:
+  type: text_contains
+  value: "verification email"

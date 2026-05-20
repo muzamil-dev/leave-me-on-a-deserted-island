@@ -1,0 +1,30 @@
+id: smartbackgroundchecks
+name: SmartBackgroundChecks
+base_url: https://www.smartbackgroundchecks.com
+opt_out_url: https://www.smartbackgroundchecks.com/optout
+method: form
+captcha: none
+confirm_email: true
+recheck_days: 90
+search_steps:
+  - action: navigate
+    url: "https://www.smartbackgroundchecks.com/people/{{profile.first_name}}-{{profile.last_name}}/{{profile.state}}/{{profile.city}}"
+  - action: wait_for
+    selector: "body"
+result_list_selector: ".person-card, a[href*='/people/']"
+result_link_selector: "a[href*='/people/']"
+result_filter: "{{profile.city}}"
+steps:
+  - action: navigate
+    url: "https://www.smartbackgroundchecks.com/optout"
+  - action: wait_for
+    selector: "input[name='email']"
+  - action: fill
+    selector: "input[name='email']"
+    value: "{{profile.email}}"
+  - action: click
+    selector: "button[type='submit']"
+success_indicator:
+  type: text_contains
+  value: "verification email"
+notes: "Simplified result detection."

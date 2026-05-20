@@ -1,0 +1,27 @@
+id: radaris
+name: Radaris
+base_url: https://radaris.com
+opt_out_url: https://radaris.com/control/privacy
+method: form
+captcha: none
+confirm_email: true
+recheck_days: 90
+search_steps:
+  - action: navigate
+    url: "https://radaris.com/p/{{profile.first_name}}/{{profile.last_name}}"
+  - action: wait_for
+    selector: ".person-card"
+find_indicator:
+  type: text_contains
+  value: "results for"
+steps:
+  - action: navigate
+    url: "https://radaris.com/control/privacy"
+  - action: fill
+    selector: "input[name='email']"
+    value: "{{profile.email}}"
+  - action: click
+    selector: "button[type='submit']"
+success_indicator:
+  type: text_contains
+  value: "verification email"

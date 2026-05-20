@@ -1,0 +1,30 @@
+id: whitepages
+name: Whitepages
+base_url: https://www.whitepages.com
+opt_out_url: https://www.whitepages.com/suppression-requests
+method: form
+captcha: recaptcha_v2
+confirm_email: true
+recheck_days: 90
+search_steps:
+  - action: navigate
+    url: "https://www.whitepages.com/name/{{profile.first_name}}-{{profile.last_name}}/{{profile.city}}-{{profile.state}}"
+  - action: wait_for
+    selector: "a[href*='/name/'], .serp-result"
+result_list_selector: ".serp-result, .search-results-list li"
+result_link_selector: "a[href*='/name/']"
+result_filter: "{{profile.city}}"
+steps:
+  - action: navigate
+    url: "https://www.whitepages.com/suppression-requests"
+  - action: wait_for
+    selector: "input[placeholder*='email'], input[name='email'], #email"
+  - action: fill
+    selector: "input[placeholder*='email'], input[name='email'], #email"
+    value: "{{profile.email}}"
+  - action: click
+    selector: "button[type='submit'], .btn-primary, #submit-button"
+success_indicator:
+  type: text_contains
+  value: "verification email"
+notes: "Multi-selector email field support."

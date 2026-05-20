@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  api:
+    build: 
+      context: ./packages/api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./data:/app/data
+      - ./packages/broker-definitions:/app/broker-definitions
+    environment:
+      - DB_PATH=/app/data/scrubbed.db
+      - MASTER_PASSWORD=${MASTER_PASSWORD}
+      - SCHEDULE_CRON=${SCHEDULE_CRON:-0 2 1 * *}
+      - NODE_ENV=development
+    restart: unless-stopped
+
+  runner:
+    build:
+      context: ./packages/runner
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/app/data
+      - ./packages/broker-definitions:/app/broker-definitions
+      - ./screenshots:/app/screenshots
+    environment:
+      - DB_PATH=/app/data/scrubbed.db
+      - MASTER_PASSWORD=${MASTER_PASSWORD}
+    shm_size: '1gb'
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  dashboard:
+    build:
+      context: ./packages/dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:3001
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  data:

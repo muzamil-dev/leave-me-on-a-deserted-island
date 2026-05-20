@@ -1,0 +1,39 @@
+id: beenverified
+name: BeenVerified
+base_url: https://www.beenverified.com
+opt_out_url: https://www.beenverified.com/app/optout/search
+method: form
+captcha: recaptcha_v2
+confirm_email: true
+recheck_days: 90
+search_steps:
+  - action: navigate
+    url: "https://www.beenverified.com/app/optout/search"
+  - action: fill
+    selector: "input[name='firstname']"
+    value: "{{profile.first_name}}"
+  - action: fill
+    selector: "input[name='lastname']"
+    value: "{{profile.last_name}}"
+  - action: select
+    selector: "select[name='state']"
+    value: "{{profile.state}}"
+  - action: click
+    selector: "button[type='submit']"
+  - action: wait_for
+    selector: ".optout-results-list"
+find_indicator:
+  type: text_contains
+  value: "results for"
+steps:
+  - action: click
+    selector: ".optout-results-list .btn-optout"
+  - action: fill
+    selector: "input[name='email']"
+    value: "{{profile.email}}"
+  - action: click
+    selector: "button[type='submit']"
+success_indicator:
+  type: text_contains
+  value: "Check your email"
+notes: "BeenVerified uses a multi-step search before allowing opt-out."
