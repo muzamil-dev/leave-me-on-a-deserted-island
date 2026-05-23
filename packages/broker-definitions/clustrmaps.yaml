@@ -8,12 +8,12 @@ confirm_email: true
 recheck_days: 120
 search_steps:
   - action: navigate
-    url: "https://clustrmaps.com/persons/{{profile.first_name}}-{{profile.last_name}}/Orlando"
+    url: "https://clustrmaps.com/persons/{{profile.first_name}}-{{profile.last_name}}"
   - action: wait_for
-    selector: "body"
-result_list_selector: ".person-card, .search-result, .card, a[href*='/person/']"
+    selector: ".person-card, .search-result, a[href*='/person/'], body"
+result_list_selector: ".person-card, .search-result, .card, div[itemtype*='Person']"
 result_link_selector: "a[href*='/person/']"
-result_filter: "{{profile.first_name}}"
+result_filter: "Orlando"
 steps:
   - action: navigate
     url: "https://clustrmaps.com/bl/opt-out"

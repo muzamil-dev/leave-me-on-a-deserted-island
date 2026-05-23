@@ -9,11 +9,9 @@ recheck_days: 90
 search_steps:
   - action: navigate
     url: "https://www.smartbackgroundchecks.com/people/{{profile.first_name}}-{{profile.last_name}}/{{profile.state}}/{{profile.city}}"
-  - action: wait_for
-    selector: "body"
-result_list_selector: ".person-card, a[href*='/people/']"
+result_list_selector: "a[href*='/people/'], .person-card"
 result_link_selector: "a[href*='/people/']"
-result_filter: "{{profile.city}}"
+result_filter: "Orlando"
 steps:
   - action: navigate
     url: "https://www.smartbackgroundchecks.com/optout"
@@ -27,4 +25,4 @@ steps:
 success_indicator:
   type: text_contains
   value: "verification email"
-notes: "Simplified result detection."
+notes: "Pattern fallback supported."

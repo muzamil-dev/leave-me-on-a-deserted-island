@@ -5,12 +5,13 @@ chromium.use(StealthPlugin());
 
 export async function launchBrowser() {
   const userAgents = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
   ];
 
   const browser = await chromium.launch({
-    headless: true, // Keep true for Docker but with max stability
+    headless: false, // Run with UI (via xvfb in Docker) to bypass bot detection
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -28,6 +29,8 @@ export async function launchBrowser() {
     deviceScaleFactor: 1,
     hasTouch: true,
     isMobile: false,
+    locale: 'en-US',
+    timezoneId: 'America/New_York',
   });
 
   return { browser, context };

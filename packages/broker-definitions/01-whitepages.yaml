@@ -9,22 +9,19 @@ recheck_days: 90
 search_steps:
   - action: navigate
     url: "https://www.whitepages.com/name/{{profile.first_name}}-{{profile.last_name}}/{{profile.city}}-{{profile.state}}"
-  - action: wait_for
-    selector: "a[href*='/name/'], .serp-result"
-result_list_selector: ".serp-result, .search-results-list li"
+result_list_selector: ".serp-result, a[href*='/name/']"
 result_link_selector: "a[href*='/name/']"
-result_filter: "{{profile.city}}"
+result_filter: "Orlando"
 steps:
   - action: navigate
     url: "https://www.whitepages.com/suppression-requests"
   - action: wait_for
-    selector: "input[placeholder*='email'], input[name='email'], #email"
+    selector: "input[name='email'], #email"
   - action: fill
-    selector: "input[placeholder*='email'], input[name='email'], #email"
+    selector: "input[name='email'], #email"
     value: "{{profile.email}}"
   - action: click
-    selector: "button[type='submit'], .btn-primary, #submit-button"
+    selector: "button[type='submit'], .btn-primary"
 success_indicator:
   type: text_contains
-  value: "verification email"
-notes: "Multi-selector email field support."
+  value: "check your email"

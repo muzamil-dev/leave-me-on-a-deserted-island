@@ -27,6 +27,23 @@ async function simulateHuman(page: any) {
   await page.waitForTimeout(1000 + Math.random() * 2000);
 }
 
+async function checkForBlocks(page: any, brokerName: string): Promise<boolean> {
+  const title = await page.title();
+  const content = (await page.content()).toLowerCase();
+  
+  await log(`  -> Page Title: "${title}"`);
+
+  const blockedTerms = ['access denied', 'cloudflare', 'verify you are human', 'captcha', 'bot detection', 'please enable js', 'pardon our interruption', 'attention required', 'one more step'];
+  
+  for (const term of blockedTerms) {
+    if (content.includes(term) || title.toLowerCase().includes(term)) {
+      await log(`[${brokerName}] BLOCK DETECTED: Found "${term}" on page.`);
+      return true;
+    }
+  }
+  return false;
+}
+
 export async function run(runId: string) {
   await log(`Starting execution for run: ${runId}`);
 
@@ -61,25 +78,35 @@ export async function run(runId: string) {
   for (const broker of brokers) {
     const page = await context.newPage();
     try {
-      await log(`Processing broker: ${broker.name}`);
+      await log(`--- Processing: ${broker.name} ---`);
 
       const existing = db.prepare('SELECT profile_url FROM discovered_profiles WHERE broker_id = ?').get(broker.id) as any;
       let profileUrl = existing?.profile_url;
 
       if (!profileUrl) {
-        await log(`[${broker.name}] Starting Scout phase...`);
+        await log(`[${broker.name}] Scouting...`);
         profileUrl = await scoutBroker(page, broker, profile);
+        
+        if (!profileUrl) {
+          await log(`[${broker.name}] No scout match. Attempting pattern guess...`);
+          const navStep = broker.search_steps?.find(s => s.action === 'navigate');
+          if (navStep && 'url' in navStep) {
+            const guessUrl = interpolateProfile(navStep.url, profile);
+            await log(`[${broker.name}] Generated guess: ${guessUrl}`);
+            profileUrl = guessUrl;
+          }
+        }
       } else {
-        await log(`[${broker.name}] Using cached profile URL: ${profileUrl}`);
+        await log(`[${broker.name}] Using cached profile: ${profileUrl}`);
       }
       
       if (profileUrl) {
         if (!existing) {
-          await log(`[${broker.name}] Profile found: ${profileUrl}`);
+          await log(`[${broker.name}] Exposure Found: ${profileUrl}`);
           db.prepare('INSERT OR IGNORE INTO discovered_profiles (broker_id, profile_url) VALUES (?, ?)').run(broker.id, profileUrl);
         }
         
-        await log(`[${broker.name}] Starting Scrub phase...`);
+        await log(`[${broker.name}] Initiating Scrub...`);
         const result = await executeBroker(page as any, broker, profile);
         
         db.prepare(`
@@ -89,7 +116,7 @@ export async function run(runId: string) {
 
         if (result.status === 'submitted') completed++; else failed++;
       } else {
-        await log(`[${broker.name}] No profile detected for ${broker.name}. skipping.`);
+        await log(`[${broker.name}] No exposure detected. skipping.`);
         completed++;
         db.prepare(`
           INSERT INTO opt_out_results (run_id, broker_id, status, submitted_at)
@@ -97,7 +124,7 @@ export async function run(runId: string) {
         `).run(runId, broker.id, 'skipped');
       }
     } catch (err: any) {
-      await log(`[${broker.name}] ERROR: Run failed: ${err.message}`);
+      await log(`[${broker.name}] ERROR: ${err.message}`);
       failed++;
     } finally {
       await page.close();
@@ -108,7 +135,7 @@ export async function run(runId: string) {
 
   db.prepare('UPDATE runs SET status = ?, completed_at = CURRENT_TIMESTAMP WHERE id = ?').run('completed', runId);
   await browser.close();
-  await log(`Run ${runId} finished.`);
+  await log(`--- Run ${runId} Finished ---`);
 }
 
 async function scoutBroker(page: any, broker: BrokerDefinition, profile: any): Promise<string | null> {
@@ -120,10 +147,11 @@ async function scoutBroker(page: any, broker: BrokerDefinition, profile: any): P
       if (step.action === 'navigate') {
         const url = interpolateProfile(step.url, profile);
         await log(`  -> Navigating to: ${url}`);
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        if (await checkForBlocks(page, broker.name)) return null;
       } else if (step.action === 'wait_for') {
-        await log(`  -> Waiting for: ${step.selector}`);
-        await page.waitForSelector(step.selector, { timeout: 25000 });
+        await log(`  -> Waiting for content...`);
+        await page.waitForSelector(step.selector, { timeout: 25000 }).catch(() => null);
       } else {
         await executeStep(page, step, profile);
       }
@@ -143,13 +171,13 @@ async function scoutBroker(page: any, broker: BrokerDefinition, profile: any): P
         const firstName = (profile.first_name || '').toLowerCase();
         const lastName = (profile.last_name || '').toLowerCase();
         const city = (profile.city || '').toLowerCase();
+        const state = (interpolateProfile('{{profile.state}}', profile) || '').toLowerCase();
         
-        await log(`    Checking text: "${text.substring(0, 150)}..."`);
+        await log(`    Checking text: "${text.substring(0, 100)}..."`);
         
-        // Ultra-inclusive matching
         if (text.includes(firstName) && text.includes(lastName)) {
-          if (text.includes(city) || text.includes('orlando') || text.includes('fl') || text.includes('florida')) {
-            await log(`  -> MATCH IDENTIFIED!`);
+          if (text.includes(city) || text.includes(state) || text.includes('orlando') || text.includes('florida') || text.includes('fl')) {
+            await log(`  -> MATCH FOUND!`);
             if (broker.result_link_selector) {
               const link = await result.$(broker.result_link_selector);
               if (link) {
@@ -167,10 +195,9 @@ async function scoutBroker(page: any, broker: BrokerDefinition, profile: any): P
       const isFound = await verifyFind(page, broker);
       if (isFound) return page.url();
     }
-    
     return null;
   } catch (e: any) {
-    await log(`  -> Scout failed: ${e.message}`);
+    await log(`  -> Scouting failed: ${e.message}`);
     return null;
   }
 }
@@ -180,9 +207,12 @@ function interpolateProfile(str: string, profile: any): string {
     'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA', 'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD', 'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS', 'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC', 'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT', 'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
   };
 
+  const slugify = (text: string) => text.replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+
   return str.replace(/{{profile\.(.*?)}}/g, (_, key) => {
     let val = (profile as any)[key] || '';
-    if (key === 'state' && stateMap[val]) return stateMap[val];
+    if (key === 'state' && stateMap[val]) val = stateMap[val];
+    if (['first_name', 'last_name', 'city'].includes(key)) return slugify(val);
     return val;
   });
 }

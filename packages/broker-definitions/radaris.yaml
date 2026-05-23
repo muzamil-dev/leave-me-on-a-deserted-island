@@ -9,14 +9,14 @@ recheck_days: 90
 search_steps:
   - action: navigate
     url: "https://radaris.com/p/{{profile.first_name}}/{{profile.last_name}}"
-  - action: wait_for
-    selector: ".person-card"
-find_indicator:
-  type: text_contains
-  value: "results for"
+result_list_selector: ".person-card, .search-results li"
+result_link_selector: "a[href*='/p/']"
+result_filter: "{{profile.city}}"
 steps:
   - action: navigate
     url: "https://radaris.com/control/privacy"
+  - action: wait_for
+    selector: "input[name='email']"
   - action: fill
     selector: "input[name='email']"
     value: "{{profile.email}}"

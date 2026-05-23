@@ -9,14 +9,14 @@ recheck_days: 90
 search_steps:
   - action: navigate
     url: "https://nuwber.com/search?name={{profile.first_name}}%20{{profile.last_name}}&city={{profile.city}}&state={{profile.state}}"
-  - action: wait_for
-    selector: ".search-results"
-find_indicator:
-  type: text_contains
-  value: "results for"
+result_list_selector: ".search-results .item, .person-card"
+result_link_selector: "a[href*='/person/']"
+result_filter: "{{profile.city}}"
 steps:
   - action: navigate
     url: "https://nuwber.com/removal"
+  - action: wait_for
+    selector: "input[name='url']"
   - action: fill
     selector: "input[name='url']"
     value: "https://nuwber.com/search?name={{profile.first_name}}%20{{profile.last_name}}"
