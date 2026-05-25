@@ -66,6 +66,9 @@ export async function run(runId: string) {
     return;
   }
 
+  db.prepare('DELETE FROM discovered_profiles').run();
+  db.prepare('DELETE FROM opt_out_results').run();
+  db.prepare('DELETE FROM manual_queue').run();
   db.prepare('UPDATE runs SET status = ?, total_brokers = ? WHERE id = ?').run('running', brokers.length, runId);
 
   const { browser, context } = await launchBrowser();
@@ -80,49 +83,15 @@ export async function run(runId: string) {
     try {
       await log(`--- Processing: ${broker.name} ---`);
 
-      const existing = db.prepare('SELECT profile_url FROM discovered_profiles WHERE broker_id = ?').get(broker.id) as any;
-      let profileUrl = existing?.profile_url;
-
-      if (!profileUrl) {
-        await log(`[${broker.name}] Scouting...`);
-        profileUrl = await scoutBroker(page, broker, profile);
-        
-        if (!profileUrl) {
-          await log(`[${broker.name}] No scout match. Attempting pattern guess...`);
-          const navStep = broker.search_steps?.find(s => s.action === 'navigate');
-          if (navStep && 'url' in navStep) {
-            const guessUrl = interpolateProfile(navStep.url, profile);
-            await log(`[${broker.name}] Generated guess: ${guessUrl}`);
-            profileUrl = guessUrl;
-          }
-        }
-      } else {
-        await log(`[${broker.name}] Using cached profile: ${profileUrl}`);
-      }
-      
-      if (profileUrl) {
-        if (!existing) {
-          await log(`[${broker.name}] Exposure Found: ${profileUrl}`);
-          db.prepare('INSERT OR IGNORE INTO discovered_profiles (broker_id, profile_url) VALUES (?, ?)').run(broker.id, profileUrl);
-        }
-        
-        await log(`[${broker.name}] Initiating Scrub...`);
-        const result = await executeBroker(page as any, broker, profile);
-
-        db.prepare(`
-          INSERT INTO opt_out_results (run_id, broker_id, status, error, screenshot_path, submitted_at)
-          VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        `).run(runId, broker.id, result.status, result.error ?? null, result.screenshotPath ?? null);
-
-        if (result.status === 'failed') failed++; else completed++;
-      } else {
-        await log(`[${broker.name}] No exposure detected. Skipping.`);
-        completed++;
-        db.prepare(`
-          INSERT INTO opt_out_results (run_id, broker_id, status, submitted_at)
-          VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-        `).run(runId, broker.id, 'skipped');
-      }
+      await Promise.race([
+        processBroker(page, broker, profile, runId, db, log, completed, failed).then(r => {
+          completed = r.completed;
+          failed = r.failed;
+        }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Broker timed out after 2 minutes')), 120_000)
+        ),
+      ]);
     } catch (err: any) {
       await log(`[${broker.name}] ERROR: ${err.message}`);
       failed++;
@@ -140,6 +109,94 @@ export async function run(runId: string) {
   db.prepare('UPDATE runs SET status = ?, completed_at = CURRENT_TIMESTAMP WHERE id = ?').run('completed', runId);
   await browser.close();
   await log(`--- Run ${runId} Finished ---`);
+}
+
+async function processBroker(
+  page: any, broker: BrokerDefinition, profile: any,
+  runId: string, db: any, log: (m: string) => Promise<void>,
+  completed: number, failed: number
+): Promise<{ completed: number; failed: number }> {
+  const existing = db.prepare('SELECT profile_url FROM discovered_profiles WHERE broker_id = ?').get(broker.id) as any;
+  let profileUrl = existing?.profile_url;
+
+  if (!profileUrl) {
+    await log(`[${broker.name}] Scouting...`);
+    profileUrl = await scoutBroker(page, broker, profile);
+
+    if (!profileUrl) {
+      await log(`[${broker.name}] No scout match. Attempting pattern guess...`);
+      const navStep = broker.search_steps?.find((s: any) => s.action === 'navigate');
+      if (navStep && 'url' in navStep) {
+        const guessUrl = interpolateProfile(navStep.url, profile);
+        await log(`[${broker.name}] Generated guess: ${guessUrl}`);
+        profileUrl = guessUrl;
+      }
+    }
+  } else {
+    await log(`[${broker.name}] Using cached profile: ${profileUrl}`);
+  }
+
+  if (profileUrl) {
+    if (!existing) {
+      await log(`[${broker.name}] Exposure Found: ${profileUrl}`);
+      db.prepare('INSERT OR IGNORE INTO discovered_profiles (broker_id, profile_url) VALUES (?, ?)').run(broker.id, profileUrl);
+    }
+
+    if (broker.captcha !== 'none') {
+      await log(`[${broker.name}] CAPTCHA required (${broker.captcha}). Queuing for manual opt-out.`);
+      db.prepare(`
+        INSERT OR IGNORE INTO manual_queue (broker_id, reason, opt_out_url, instructions)
+        VALUES (?, ?, ?, ?)
+      `).run(
+        broker.id,
+        `Requires ${broker.captcha} CAPTCHA — cannot be automated`,
+        broker.opt_out_url,
+        `Visit ${broker.opt_out_url} and manually submit a removal request for your profile at: ${profileUrl}`
+      );
+      db.prepare(`
+        INSERT INTO opt_out_results (run_id, broker_id, status, submitted_at)
+        VALUES (?, ?, 'manual', CURRENT_TIMESTAMP)
+      `).run(runId, broker.id);
+      completed++;
+    } else {
+      await log(`[${broker.name}] Initiating Scrub...`);
+      const result = await executeBroker(page as any, broker, profile);
+
+      if (result.status === 'failed' && await checkForBlocks(page, broker.name)) {
+        await log(`[${broker.name}] Block/CAPTCHA detected during opt-out. Queuing for manual action.`);
+        db.prepare(`
+          INSERT OR IGNORE INTO manual_queue (broker_id, reason, opt_out_url, instructions)
+          VALUES (?, ?, ?, ?)
+        `).run(
+          broker.id,
+          'Blocked by CAPTCHA or bot-detection during opt-out',
+          broker.opt_out_url,
+          `Visit ${broker.opt_out_url} and manually submit a removal request.`
+        );
+        db.prepare(`
+          INSERT INTO opt_out_results (run_id, broker_id, status, submitted_at)
+          VALUES (?, ?, 'manual', CURRENT_TIMESTAMP)
+        `).run(runId, broker.id);
+        completed++;
+      } else {
+        db.prepare(`
+          INSERT INTO opt_out_results (run_id, broker_id, status, error, screenshot_path, submitted_at)
+          VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `).run(runId, broker.id, result.status, result.error ?? null, result.screenshotPath ?? null);
+
+        if (result.status === 'failed') failed++; else completed++;
+      }
+    }
+  } else {
+    await log(`[${broker.name}] No exposure detected. Skipping.`);
+    completed++;
+    db.prepare(`
+      INSERT INTO opt_out_results (run_id, broker_id, status, submitted_at)
+      VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+    `).run(runId, broker.id, 'skipped');
+  }
+
+  return { completed, failed };
 }
 
 async function scoutBroker(page: any, broker: BrokerDefinition, profile: any): Promise<string | null> {
@@ -180,7 +237,7 @@ async function scoutBroker(page: any, broker: BrokerDefinition, profile: any): P
         await log(`    Checking text: "${text.substring(0, 100)}..."`);
         
         if (text.includes(firstName) && text.includes(lastName)) {
-          if (text.includes(city) || text.includes(state) || text.includes('orlando') || text.includes('florida') || text.includes('fl')) {
+          if (text.includes(city) || text.includes(state)) {
             await log(`  -> MATCH FOUND!`);
             if (broker.result_link_selector) {
               const link = await result.$(broker.result_link_selector);
@@ -223,7 +280,7 @@ function interpolateProfile(str: string, profile: any): string {
 
 async function executeStep(page: any, step: any, profile: any) {
   switch (step.action) {
-    case 'navigate': await page.goto(interpolateProfile(step.url, profile), { waitUntil: 'networkidle' }); break;
+    case 'navigate': await page.goto(interpolateProfile(step.url, profile), { waitUntil: 'domcontentloaded', timeout: 30000 }); break;
     case 'fill': await page.fill(step.selector, interpolateProfile(step.value, profile)); break;
     case 'click': await page.click(step.selector); break;
     case 'select': await page.selectOption(step.selector, interpolateProfile(step.value, profile)); break;
