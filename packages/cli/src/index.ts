@@ -36,7 +36,8 @@ function badge(status: string): string {
   if (s === 'confirmed' || s === 'completed') return chalk.green(status);
   if (s === 'submitted') return chalk.cyan(status);
   if (s === 'failed') return chalk.red(status);
-  if (s === 'skipped') return chalk.yellow(status);
+  if (s === 'manual') return chalk.yellow('action required');
+  if (s === 'skipped') return chalk.gray(status);
   if (s === 'running') return chalk.blue(status);
   if (s === 'queued') return chalk.gray(status);
   return chalk.gray(status);

@@ -6,7 +6,7 @@ services:
       context: ./packages/api
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
     volumes:
       - ./data:/app/data
       - ./packages/broker-definitions:/app/broker-definitions

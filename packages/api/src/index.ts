@@ -6,13 +6,14 @@ import brokerRoutes from './routes/brokers';
 import runRoutes from './routes/runs';
 import discoveredRoutes from './routes/discovered';
 import logRoutes from './routes/logs';
+import manualRoutes from './routes/manual';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 
 app.get('/health', (req, res) => {
@@ -24,6 +25,7 @@ app.use('/api/brokers', brokerRoutes);
 app.use('/api/runs', runRoutes);
 app.use('/api/discovered', discoveredRoutes);
 app.use('/api/logs', logRoutes);
+app.use('/api/manual', manualRoutes);
 
 app.listen(Number(port), '0.0.0.0', () => {
   console.log(`API Server running on 0.0.0.0:${port}`);

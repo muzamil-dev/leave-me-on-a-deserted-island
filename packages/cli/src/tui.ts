@@ -9,13 +9,15 @@ const STATUS_COLOR: Record<string, string> = {
   running:    '{blue-fg}',
   queued:     '{white-fg}',
   failed:     '{red-fg}',
-  skipped:    '{yellow-fg}',
+  manual:     '{yellow-fg}',
+  skipped:    '{grey-fg}',
   pending:    '{grey-fg}',
 };
 
 function colorStatus(status: string): string {
+  const display = status === 'manual' ? 'action required' : status;
   const tag = STATUS_COLOR[(status ?? 'pending').toLowerCase()] ?? '{grey-fg}';
-  return `${tag}${status}{/}`;
+  return `${tag}${display}{/}`;
 }
 
 function fmtDuration(start: string, end: string | null): string {
@@ -75,8 +77,8 @@ export async function launchTUI(): Promise<void> {
 
   // ── Logs panel (lower) ────────────────────────────────────────────────────
   const logsBox = blessed.log({
-    bottom: 1, left: 0,
-    width: '100%', height: '50%',
+    top: '50%', bottom: 1, left: 0,
+    width: '100%',
     label: ' {cyan-fg}{bold}Logs{/bold}{/} (tab to focus, ↑↓ to scroll)',
     tags: true,
     border: { type: 'line' },
@@ -100,7 +102,7 @@ export async function launchTUI(): Promise<void> {
     bottom: 0, left: 0,
     width: '100%', height: 1,
     tags: true,
-    content: '  {bold}s{/bold} Scan   {bold}p{/bold} Profile   {bold}enter{/bold} Open URL   {bold}tab{/bold} Logs   {bold}esc{/bold} Back   {bold}r{/bold} Refresh   {bold}?{/bold} Help   {bold}q{/bold} Quit',
+    content: '  {bold}:{/bold} Cmd  {bold}s{/bold} Scan  {bold}p{/bold} Profile  {bold}⏎{/bold} Open  {bold}tab{/bold} Logs  {bold}esc{/bold} Back  {bold}r{/bold} Refresh  {bold}?{/bold} Help  {bold}q{/bold} Quit',
     style: { fg: 'white', bg: 'black' },
   });
 
@@ -168,7 +170,7 @@ export async function launchTUI(): Promise<void> {
   // ── Command prompt ────────────────────────────────────────────────────────
   const cmdPrompt = blessed.prompt({
     top: 'center', left: 'center',
-    width: 60, height: 5,
+    width: 54, height: 8,
     label: ' {cyan-fg}{bold}Command{/bold}{/} ',
     tags: true,
     border: { type: 'line' },
@@ -495,8 +497,7 @@ export async function launchTUI(): Promise<void> {
 
   // Command prompt - press : to open
   screen.key(':', () => {
-    const hint = 'scan  refresh  clear  profile  profile edit  help  quit';
-    cmdPrompt.input(hint, '', async (_err: any, value: string) => {
+    cmdPrompt.input('scan  profile  profile edit  refresh  quit', '', async (_err: any, value: string) => {
       if (!value) { brokersList.focus(); screen.render(); return; }
       const input = value.trim().toLowerCase();
       brokersList.focus();

@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [activeRun, setActiveRun] = useState<any>(null);
   const [lastRun, setLastRun] = useState<any>(null);
   const [discovered, setDiscovered] = useState<any[]>([]);
+  const [manualQueue, setManualQueue] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
@@ -18,19 +19,22 @@ const Dashboard = () => {
 
   const fetchStatus = async () => {
     try {
-      const [brokersRes, runsRes, discoveredRes, logsRes] = await Promise.allSettled([
+      const [brokersRes, runsRes, discoveredRes, logsRes, manualRes] = await Promise.allSettled([
         axios.get(`${API_URL}/brokers`),
         axios.get(`${API_URL}/runs`),
         axios.get(`${API_URL}/discovered`),
-        axios.get(`${API_URL}/logs`)
+        axios.get(`${API_URL}/logs`),
+        axios.get(`${API_URL}/manual`),
       ]);
 
       if (brokersRes.status === 'fulfilled') setStats(prev => ({ ...prev, brokers: brokersRes.value.data.length }));
-      if (discoveredRes.status === 'fulfilled') {
-        console.log('Discovered data:', discoveredRes.value.data);
-        setDiscovered(discoveredRes.value.data);
-      }
+      if (discoveredRes.status === 'fulfilled') setDiscovered(discoveredRes.value.data);
       if (logsRes.status === 'fulfilled') setLogs(logsRes.value.data);
+      if (manualRes.status === 'fulfilled') {
+        const unresolved = manualRes.value.data.filter((m: any) => !m.resolved);
+        setManualQueue(manualRes.value.data);
+        setStats(prev => ({ ...prev, manual: unresolved.length }));
+      }
       if (runsRes.status === 'fulfilled') {
         const latestRun = runsRes.value.data[0];
         setLastRun(latestRun);
@@ -63,6 +67,11 @@ const Dashboard = () => {
 
   const removeDiscovered = async (id: number) => {
     await axios.delete(`${API_URL}/discovered/${id}`);
+    fetchStatus();
+  };
+
+  const resolveManual = async (id: number) => {
+    await axios.patch(`${API_URL}/manual/${id}/resolve`);
     fetchStatus();
   };
 
@@ -116,6 +125,30 @@ const Dashboard = () => {
           <div ref={logEndRef} />
         </div>
       </div>
+
+      {manualQueue.filter(m => !m.resolved).length > 0 && (
+        <div className="mb-10">
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-nord13 mb-4 ml-1">Manual Action Required</h3>
+          <div className="bg-surface border border-nord13/30 rounded-xl shadow-sm overflow-hidden">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-nord13/5 border-b border-nord13/20"><tr><th className="px-6 py-4 font-bold text-nord4 uppercase text-[10px] tracking-widest">Broker</th><th className="px-6 py-4 font-bold text-nord4 uppercase text-[10px] tracking-widest">Reason</th><th className="px-6 py-4 font-bold text-nord4 uppercase text-[10px] tracking-widest">Instructions</th><th className="px-6 py-4 font-bold text-nord4 uppercase text-[10px] tracking-widest text-right">Action</th></tr></thead>
+              <tbody className="divide-y divide-border/30">
+                {manualQueue.filter(m => !m.resolved).map(m => (
+                  <tr key={m.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-6 py-4 font-medium text-nord6 uppercase text-[11px] tracking-wider">{m.broker_id}</td>
+                    <td className="px-6 py-4 text-[10px] text-nord13">{m.reason}</td>
+                    <td className="px-6 py-4 text-[10px] text-nord4 max-w-sm">
+                      <a href={m.opt_out_url} target="_blank" rel="noreferrer" className="text-primary hover:text-nord9 flex items-center gap-1 mb-1">{m.opt_out_url}<ExternalLink size={10} /></a>
+                      {m.instructions}
+                    </td>
+                    <td className="px-6 py-4 text-right"><button onClick={() => resolveManual(m.id)} className="text-[9px] font-bold uppercase tracking-widest border border-nord14/40 text-nord14 hover:bg-nord14/10 px-3 py-1.5 rounded transition-colors"><CheckCircle2 size={12} className="inline mr-1" />Done</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <div className="mb-10">
         <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-nord3 mb-4 ml-1">Live Exposures Found</h3>
@@ -227,8 +260,10 @@ const StatusBadge = ({ status }: { status: string }) => {
     failed: "bg-nord11/20 text-nord11 border-nord11/30",
     pending: "bg-nord3/20 text-nord3 border-nord3/30",
     skipped: "bg-nord2/20 text-nord4 border-nord2/30",
+    manual: "bg-nord13/20 text-nord13 border-nord13/30",
   }[status] || "bg-nord3/20 text-nord3 border-nord3/30";
-  return <span className={clsx("px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border", styles)}>{status}</span>;
+  const display = status === 'manual' ? 'action required' : status;
+  return <span className={clsx("px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border", styles)}>{display}</span>;
 };
 
 const Input = ({ label, value, onChange, type = "text", required = false }: any) => (

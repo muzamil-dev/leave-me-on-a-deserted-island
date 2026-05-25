@@ -1,0 +1,13 @@
+{
+  "name": "scrubbed",
+  "private": true,
+  "scripts": {
+    "cli": "npm run dev --prefix packages/cli --",
+    "tui": "npm run dev --prefix packages/cli",
+    "build": "npm run build --prefix packages/cli",
+    "up": "docker compose up",
+    "down": "docker compose down",
+    "restart": "docker compose restart",
+    "logs": "docker compose logs -f"
+  }
+}
