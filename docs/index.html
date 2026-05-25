@@ -23,9 +23,10 @@
         
         header.top-bar { height: var(--header-height); background: var(--header-bg); border-bottom: 1px solid var(--border); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 2rem; display: flex; align-items: center; backdrop-filter: blur(12px); }
         .logo { display: flex; align-items: center; gap: 0.6rem; font-size: 1.2rem; font-weight: 800; color: var(--primary); text-decoration: none; white-space: nowrap; margin-right: 2.5rem; }
-        .search-trigger { background: var(--nord1); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.75rem; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; width: 320px; transition: all 0.2s; }
+        .search-trigger { background: var(--nord1); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.75rem; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; width: 300px; transition: all 0.2s; }
         .search-trigger:hover { background: var(--nord2); border-color: var(--nord8); }
         .search-trigger .kcmd { margin-left: auto; background: var(--nord0); padding: 1px 5px; border-radius: 4px; font-size: 0.7rem; border: 1px solid var(--border); font-weight: 700; }
+        
         .header-actions { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; }
         .top-btn { display: flex; align-items: center; gap: 0.5rem; color: var(--text-main); text-decoration: none; font-size: 0.85rem; font-weight: 600; padding: 0.5rem 0.8rem; border-radius: 6px; background: var(--nord1); border: 1px solid var(--border); transition: all 0.2s; }
         .top-btn:hover { background: var(--nord2); border-color: var(--nord8); }
@@ -48,25 +49,38 @@
         .toc-link:hover { color: var(--nord8); }
         .toc-link.active { color: var(--nord8); font-weight: 700; border-left-color: var(--nord8); }
 
-        h1 { font-size: 3rem; margin: 0 0 1.5rem; color: var(--text-main); font-weight: 800; letter-spacing: -0.03em; }
-        .subtitle { font-size: 1.25rem; color: var(--text-dim); margin-bottom: 4rem; font-weight: 300; }
+        h1 { font-size: 2.75rem; margin: 0 0 1.5rem; color: var(--text-main); font-weight: 800; letter-spacing: -0.03em; }
+        .subtitle { font-size: 1.2rem; color: var(--text-dim); margin-bottom: 4rem; font-weight: 300; }
         h2 { font-size: 1.85rem; margin: 4.5rem 0 1.5rem; color: var(--nord8); font-weight: 700; scroll-margin-top: 100px; }
-        h3 { font-size: 1.35rem; margin: 2.5rem 0 1rem; color: var(--nord9); font-weight: 600; }
+        h3 { font-size: 1.3rem; margin: 2.5rem 0 1rem; color: var(--nord9); font-weight: 600; }
         p { margin-bottom: 1.5rem; color: var(--nord4); font-size: 1.05rem; }
         ul { margin-bottom: 2rem; padding-left: 1.5rem; color: var(--nord4); }
-        li { margin-bottom: 0.75rem; }
+        li { margin-bottom: 0.6rem; }
 
         .excel-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); margin: 2rem 0; font-size: 0.85rem; background: rgba(255, 255, 255, 0.01); }
         .excel-table th { background: var(--nord1); color: var(--nord8); border: 1px solid var(--border); padding: 0.8rem 1.2rem; font-weight: 700; text-align: left; text-transform: uppercase; font-size: 0.7rem; }
-        .excel-table td { border: 1px solid var(--border); padding: 0.8rem 1.2rem; color: var(--nord4); }
+        .excel-table td { border: 1px solid var(--border); padding: 0.8rem 1.2rem; color: var(--nord4); position: relative; }
         .excel-table tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.03); }
 
         .diagram-box { background: #0d1117; border: 1px solid var(--border); padding: 2rem; border-radius: 12px; overflow-x: auto; margin: 2.5rem 0; }
-        .diagram-box pre { margin: 0; font-family: 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.3; color: var(--nord6); white-space: pre; }
+        .diagram-box pre { margin: 0; font-family: 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.3; color: var(--nord6); white-space: pre; background: transparent; border: none; padding: 0; }
 
         section { display: none; }
         section.active { display: block; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Copy Button Styles */
+        .code-wrap { position: relative; }
+        .copy-btn {
+            position: absolute; top: 0.5rem; right: 0.5rem;
+            background: var(--nord1); border: 1px solid var(--border);
+            color: var(--nord4); border-radius: 4px; padding: 0.3rem;
+            cursor: pointer; opacity: 0; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .code-wrap:hover .copy-btn, td:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: var(--nord2); color: var(--primary); }
+        .copy-btn.copied { color: var(--nord14); border-color: var(--nord14); }
 
         .tabs { background: var(--nord1); padding: 0.4rem; border-radius: 10px; display: inline-flex; gap: 0.4rem; margin-bottom: 2rem; }
         .tab-btn { background: none; border: none; color: var(--text-dim); padding: 0.5rem 1.25rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
@@ -75,7 +89,9 @@
         .tab-content.active { display: block; }
 
         .page-nav { display: flex; justify-content: space-between; margin-top: 8rem; padding-top: 3rem; border-top: 1px solid var(--border); gap: 2rem; }
-        .nav-btn { display: flex; align-items: center; gap: 1.5rem; background: var(--nord1); color: var(--nord4); padding: 1.5rem 2rem; border-radius: 16px; text-decoration: none; border: 1px solid var(--border); transition: all 0.2s; flex: 1; }
+        .nav-btn {
+            display: flex; align-items: center; gap: 1.5rem; background: var(--nord1); color: var(--nord4); padding: 1.5rem 2rem; border-radius: 16px; text-decoration: none; border: 1px solid var(--border); transition: all 0.2s; flex: 1;
+        }
         .nav-btn:hover { background-color: var(--nord2); border-color: var(--nord8); transform: translateY(-4px); }
         .nav-label-stack { display: flex; flex-direction: column; gap: 0.3rem; }
         .nav-label-stack .dir { font-size: 0.75rem; color: var(--nord3); text-transform: uppercase; letter-spacing: 0.15em; font-weight: 800; }
@@ -98,11 +114,6 @@
 
         @media (max-width: 1280px) { aside.toc-sidebar { display: none; } main { padding-right: 3rem; } }
         @media (max-width: 1024px) { aside.sidebar { display: none; } main { padding: 4rem 1.5rem; } .search-trigger { width: 44px; min-width: 44px; padding: 0.5rem; } .search-trigger span, .search-trigger .kcmd { display: none; } }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--nord2); border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -145,9 +156,11 @@
                 <h2 id="the-problem">The Data Broker Problem</h2>
                 <p>Today, your name, home address, phone history, and even the names of your family members are listed on hundreds of "people-search" websites. These brokers scrape public records and social media to build detailed profiles on private citizens, selling this data to anyone with a credit card.</p>
                 <p>Manually removing yourself from these sites is a full-time job. Each broker requires a unique opt-out form, email verification, and constant re-checking as data often reappears weeks later when the broker refreshes their database. This is where Scrubbed steps in, providing a set-and-forget solution for individual privacy.</p>
+                <p>Scrubbed was born out of a necessity for transparent, low-cost privacy tools. While many commercial services claim to protect you, they often require you to trust them with the very data you are trying to hide. By making Scrubbed open-source, we invite the community to audit our methods and contribute to a growing library of broker definitions.</p>
 
                 <h2 id="our-solution">Our Solution</h2>
                 <p>Scrubbed automates this entire lifecycle. By combining advanced browser automation (Playwright) with a sophisticated domain-specific language for broker definitions, Scrubbed searches, identifies, and submits removal requests on your behalf.</p>
+                <p>Our architecture is designed to be lean yet powerful. We don't just send a generic removal request; we replicate the exact behavior of a human user, which significantly increases the success rate of removals. This "human-emulation" approach is what sets Scrubbed apart from simpler, API-based removal scripts that are easily flagged by bot detection systems.</p>
                 <p>Because the engine is self-hosted, your sensitive data (like your address and date of birth) never leaves your own hardware. Unlike paid "privacy services," Scrubbed doesn't charge a subscription and doesn't store your data on a central cloud server, ensuring absolute residency and security.</p>
 
                 <div class="page-nav"><a href="#features" class="nav-btn next"><div class="nav-label-stack"><span class="dir">Next</span><span class="title">Features</span></div><i class="material-icons-round">arrow_forward</i></a></div>
@@ -160,10 +173,12 @@
                 <h2 id="automation-details">Autonomous Removal</h2>
                 <p>Scrubbed implements a "Scout-and-Scrub" methodology. It doesn't just fill out forms; it first acts as a researcher, navigating data broker search interfaces to find the exact URL where your data resides. This ensures that the opt-out request is pinpointed and effective, targeting the correct database entry every time.</p>
                 <p>Once a profile is found, the engine executes a series of "Scrub Steps" defined in YAML. These steps handle complex DOM interactions, including clicking hidden buttons, navigating shadow roots, and handling multi-page opt-out flows that are designed to frustrate manual users. The system is resilient to UI changes and can be updated easily via the definition system.</p>
+                <p>The engine's ability to navigate dynamic single-page applications (SPAs) means it can handle modern web interfaces that older scrapers fail on. It intelligently manages cookies, local storage, and session tokens to maintain a consistent identity during the removal process, preventing brokers from linking multiple removal attempts.</p>
 
                 <h2 id="privacy-residency">Local-First Residency</h2>
                 <p>Your profile data is stored in a locally encrypted SQLite database. When you run Scrubbed, the communication happens directly between your IP address and the data broker. There is no middleman service that can see your search queries or the profiles we've discovered. You own the hardware, you own the database, and you own the privacy.</p>
-                <p>By using a master password, Scrubbed secures your IMAP credentials and sensitive profile fields using AES-256-CBC. This ensures that even if your hardware is compromised, your privacy configurations remain unreadable without the key. We prioritize security at rest as much as we do privacy in transit.</p>
+                <p>By using a master password, Scrubbed secures your IMAP credentials and sensitive profile fields using AES-256-CBC. This ensures that even if your hardware is compromised, your privacy configurations remain unreadable without the key. We prioritize security at rest as much as we do privacy in transit, ensuring a zero-knowledge architecture.</p>
+                <p>Security is not an after-thought; it is the foundation. By leveraging Node.js's native crypto libraries, we ensure that your IMAP passwords and other credentials are never stored in a reversible format without the master key. This ensures that your privacy remains intact even if your local storage is physically accessed.</p>
 
                 <div class="page-nav">
                     <a href="#introduction" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Introduction</span></div></a>
@@ -178,6 +193,7 @@
                 <h2 id="scout-tech">Phase 1: The Scout Engine</h2>
                 <p>The Scout phase is a specialized search operation. The Runner service launches a headless Chromium instance powered by Playwright. Using <code>playwright-extra-stealth</code>, the engine mimics a real user by randomizing user agents, spoofing WebGL fingerprints, and introducing natural mouse movements. This ensures brokers cannot easily block the engine as a bot.</p>
                 <p>The engine navigates to a broker's search page and inputs your profile details. It then parses the results page, using fuzzy matching algorithms to score each result. If a profile matches your criteria (City, State, Age, Relatives) with high confidence, the unique "Exposure URL" is saved to the database. This phase is critical for accurate removal without affecting people with similar names.</p>
+                <p>Fuzzy matching is used to distinguish between you and people with similar names. We look for "confirmatory data"—attributes like previous addresses or middle initials that brokers often hide behind paywalls. By cross-referencing this data, Scrubbed minimizes "false positive" removal requests that could lead to account locks or incorrect data removal.</p>
 
                 <h2 id="scrub-tech">Phase 2: Automated Opt-Out</h2>
                 <p>Once an Exposure URL is validated, the Scrub phase begins. The engine follows the broker's specific opt-out workflow. This often involves navigating to a suppression request form, injecting your data into specific fields, and submitting a "reason for removal." The engine handles complex multi-step forms that require session persistence.</p>
@@ -186,6 +202,7 @@
                 <h2 id="imap-tech">Phase 3: Email Verification Logic</h2>
                 <p>Most brokers require you to click a link in a confirmation email. Scrubbed solves this with an integrated IMAP listener. It polls your configured "Privacy Email" every few minutes, searching for new messages from known broker domains. It handles the complex authentication and SSL handshake required by modern mail providers.</p>
                 <p>When a relevant email is found, the listener uses regular expressions to extract the confirmation link. It then launches a one-time browser context to "click" that link, completing the opt-out flow without any human interaction. This automated loop is what allows Scrubbed to clear dozens of brokers while you sleep.</p>
+                <p>The IMAP listener is built for high reliability. It handles multi-factor authentication (MFA) challenges and app-specific passwords common in modern email providers. It can differentiate between marketing spam and critical verification links, ensuring that only the relevant actions are automated.</p>
 
                 <div class="page-nav">
                     <a href="#features" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Features</span></div></a>
@@ -200,6 +217,7 @@
                 <h2 id="visual-strat">Visual Strategy</h2>
                 <p>Scrubbed is built on the Nord color palette, an arctic-inspired theme designed for readability and professional aesthetics. We use high-contrast text for critical status indicators (Active, Failed, Confirmed) while maintaining a subdued background that is easy on the eyes during long-running scans. Every element is designed to feel cohesive and technical.</p>
                 <p>Our UI strategy focuses on "Live Engine Streams." We believe you should never wonder what an automated tool is doing. Both the Dashboard and TUI provide a dedicated panel that streams the Runner's internal logs in real-time, allowing you to see every navigation, form fill, and broker response as it happens. This transparency builds trust in the automation engine.</p>
+                <p>The choice of typography (Inter and Fira Code) ensures that technical information remains legible across all screen sizes. We emphasize information density without sacrificing whitespace, providing a clean interface that respects the user's focus.</p>
 
                 <h2 id="responsive-design">Dual-Interface Control</h2>
                 <p>The **Web Dashboard** is the primary management hub. It uses React 18 and Tailwind CSS to provide a highly reactive experience, featuring animated progress bars for active sweeps and a "Manual Queue" that surfaces brokers requiring human help. It's fully responsive, working just as well on a tablet as it does on a desktop monitor.</p>
@@ -222,17 +240,18 @@
                      │ RESTful API (JSON)
 ┌────────────────────▼────────────────────────────────────┐
 │  API (Express + SQLite)             :3001                │
-│  State Manager, Log Buffer, Run Orchestrator            │
+│  The "Brain": State Manager, Log Buffer, Orchestrator   │
 └────────────────────┬────────────────────────────────────┘
                      │ Shared SQLite (WAL Mode)
 ┌────────────────────▼────────────────────────────────────┐
 │  Runner (Playwright + xvfb)                             │
-│  Browser Automation, IMAP Engine, Cron Scheduler        │
+│  The "Muscle": Automation, IMAP Engine, Scheduler     │
 └─────────────────────────────────────────────────────────┘</pre></div>
 
                 <h2 id="api-deep-dive">The Core API (Express)</h2>
                 <p>The API service is the central nervous system of Scrubbed. Built on Node.js 20 and Express, it manages the persistent state of your profiles, the registry of data brokers, and the history of every scan "run." It provides a clean RESTful interface that the Dashboard and CLI use to query data, ensuring a unified state across all clients.</p>
                 <p>Crucially, the API and Runner share a single SQLite database. By utilizing **WAL (Write-Ahead Logging)** mode, we allow the Runner to perform high-frequency updates (like logging progress) while the API continues to serve read requests to the UI without blocking. Every data point is validated using **Zod** to ensure absolute schema integrity, preventing corrupted data from entering the automation pipeline.</p>
+                <p>The REST API is structured around the concept of "Task Atomicity." Every removal attempt is broken down into discrete steps. This allows the system to recover gracefully from network timeouts or broker UI glitches without having to restart the entire scan from scratch.</p>
 
                 <div class="page-nav">
                     <a href="#ui-design" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">UI & Experience</span></div></a>
@@ -290,11 +309,11 @@
                 </div>
 
                 <h2 id="validation">Validation</h2>
-                <p>Verify that your deployment is healthy and all services are communicating correctly.</p>
+                <p>After the containers are healthy, run these quick checks to ensure the engine can communicate with the browser environment and the database.</p>
                 <table class="excel-table"><thead><tr><th>Service</th><th>Check</th><th>Expected Result</th></tr></thead><tbody>
-                    <tr><td>API</td><td><code>curl http://localhost:3001/health</code></td><td><code>{"status":"ok"}</code></td></tr>
-                    <tr><td>Runner</td><td><code>docker compose logs runner</code></td><td>Logs showing "Engine polling active"</td></tr>
-                    <tr><td>Web</td><td>Browse <code>localhost:3000</code></td><td>Interactive login screen</td></tr>
+                    <tr><td>API</td><td>Health Ping</td><td><code>curl http://localhost:3001/health</code></td></tr>
+                    <tr><td>Runner</td><td>Polling Logs</td><td><code>docker compose logs runner</code></td></tr>
+                    <tr><td>Web</td><td>Interface Access</td><td>Browse <code>localhost:3000</code></td></tr>
                 </tbody></table>
 
                 <div class="page-nav">
@@ -309,9 +328,11 @@
                 <h2 id="config-matrix">Configuration Matrix</h2>
                 <table class="excel-table"><thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead><tbody>
                     <tr><td><code>MASTER_PASSWORD</code></td><td>(Required)</td><td>Key used for AES-256 database encryption.</td></tr>
-                    <tr><td><code>SCHEDULE_CRON</code></td><td><code>0 2 1 * *</code></td><td>Cron schedule for automatic sweeps (1st of month).</td></tr>
+                    <tr><td><code>SCHEDULE_CRON</code></td><td><code>0 2 1 * *</code></td><td>Cron schedule for automatic sweeps.</td></tr>
                     <tr><td><code>DB_PATH</code></td><td><code>/app/data/db</code></td><td>The internal storage path for the SQLite file.</td></tr>
+                    <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Verbosity of the Runner and API logs.</td></tr>
                 </tbody></table>
+                <p>Proper management of the `.env` file is critical for security. We recommend rotating your `MASTER_PASSWORD` periodically and ensuring that the file permissions are restricted to the user running the Docker containers. Never commit your `.env` file to a public repository.</p>
                 <div class="page-nav">
                     <a href="#setup" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Installation</span></div></a>
                     <a href="#cli-usage" class="nav-btn next"><div class="nav-label-stack"><span class="dir">Next</span><span class="title">Usage Guide</span></div><i class="material-icons-round">arrow_forward</i></a>
@@ -329,9 +350,27 @@
                     <tr><td><code>q</code></td><td>Safely terminate the CLI interface</td></tr>
                 </tbody></table>
                 <h2 id="shell-usage">Shell Commands</h2>
-                <pre><code>scrubbed status          # Check system health
-scrubbed profile setup   # Interactive profile wizard
-scrubbed scan start      # Initiate background sweep</code></pre>
+                <p>The CLI is designed for speed and power. Below is a complete reference of all commands available in the <code>scrubbed</code> utility.</p>
+                
+                <div class="code-wrap">
+                    <pre><code># Profile Management
+scrubbed profile show               # display current profile
+scrubbed profile setup              # interactive profile setup
+
+# Scan Orchestration
+scrubbed scan start                 # queue a new scan
+scrubbed scan watch                 # start scan and stream logs until done
+scrubbed scan status                # show latest run progress
+scrubbed scan status --id <runId>   # check progress of a specific run
+scrubbed scan results <runId>       # per-broker results table for a run
+
+# System & Data
+scrubbed status                     # overview of profile and latest run
+scrubbed brokers                    # list all brokers with status
+scrubbed logs                       # show recent logs
+scrubbed logs --follow              # tail logs live
+scrubbed discovered                 # list discovered profile URLs</code></pre>
+                </div>
                 <div class="page-nav">
                     <a href="#environment" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Environment</span></div></a>
                     <a href="#brokers" class="nav-btn next"><div class="nav-label-stack"><span class="dir">Next</span><span class="title">Coverage</span></div><i class="material-icons-round">arrow_forward</i></a>
@@ -372,10 +411,10 @@ scrubbed scan start      # Initiate background sweep</code></pre>
 
                 <h2 id="network-transparency">Network Transparency</h2>
                 <p>All network traffic generated by Scrubbed is transparent and auditable. The Runner service communicates directly with data broker websites via an automated Chromium browser. There are no middleman proxy servers controlled by the Scrubbed project that can see or intercept your traffic. This direct communication model ensures that no third party can build a profile of your "removal activity."</p>
-                <p>We do not use any telemetry, tracking pixels, or third-party analytics (like Google Analytics) within the application or the dashboard. We believe that a privacy tool must, first and foremost, be invisible to everyone except its owner. Your usage of Scrubbed is entirely private, and we do not collect metadata about when or how you use the tool.</p>
+                <p>Because Scrubbed is self-hosted, the retention period for your data is determined entirely by you. You can purge your scan history, remove your profile, or wipe the entire database at any time. We do not maintain any logs of your activity, nor do we track which brokers are most active for our users.</p>
 
                 <h2 id="encryption-standard">Encryption Standards</h2>
-                <p>Sensitive credentials, such as your IMAP password for email verification, are never stored in plain text. Scrubbed uses the Web Crypto API (or Node.js crypto module) to implement industry-standard encryption. We use a salted PBKDF2 derivation function to transform your `MASTER_PASSWORD` into a unique encryption key, making brute-force attacks on your local database computationally expensive.</p>
+                <p>Sensitive credentials, such as your IMAP password for email verification, are never stored in plain text. Scrubbed uses the Web Crypto API to implement industry-standard encryption. We use a salted PBKDF2 derivation function to transform your `MASTER_PASSWORD` into a unique encryption key, making brute-force attacks on your local database computationally expensive.</p>
 
                 <h2 id="auditability">Auditability & Open Source</h2>
                 <p>The entire source code of Scrubbed is open and available for public audit. We encourage security-conscious users to review our Playwright implementation, our database schema, and our encryption routines. Our goal is to earn your trust through engineering transparency rather than legal marketing. By keeping the code open, we ensure that anyone can verify our privacy claims for themselves.</p>
@@ -417,8 +456,7 @@ scrubbed scan start      # Initiate background sweep</code></pre>
         function generateTOC() {
             const activeSection = document.querySelector("section.active");
             if (!activeSection) return;
-            const headings = activeSection.querySelectorAll("h2");
-            tocContainer.innerHTML = Array.from(headings).map(h => `<a href="#${h.id || h.innerText.toLowerCase().replace(/\s+/g, '-')}" class="toc-link">${h.innerText}</a>`).join('');
+            tocContainer.innerHTML = Array.from(activeSection.querySelectorAll("h2")).map(h => `<a href="#${h.id || h.innerText.toLowerCase().replace(/\s+/g, '-')}" class="toc-link">${h.innerText}</a>`).join('');
         }
 
         function highlightTOC() {
@@ -454,8 +492,49 @@ scrubbed scan start      # Initiate background sweep</code></pre>
             generateTOC();
         }
 
+        // Copy Utility
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="material-icons-round" style="font-size:14px;color:var(--nord14)">done</i>';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function initCopyButtons() {
+            // Add buttons to all PRE blocks
+            document.querySelectorAll('pre code').forEach(code => {
+                const pre = code.parentElement;
+                pre.parentElement.classList.add('code-wrap');
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '<i class="material-icons-round" style="font-size:14px">content_copy</i>';
+                btn.onclick = () => copyToClipboard(code.innerText.trim(), btn);
+                pre.parentElement.appendChild(btn);
+            });
+
+            // Add buttons to all Table code blocks
+            document.querySelectorAll('.excel-table code').forEach(code => {
+                const td = code.parentElement;
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.style.top = '50%';
+                btn.style.transform = 'translateY(-50%)';
+                btn.innerHTML = '<i class="material-icons-round" style="font-size:12px">content_copy</i>';
+                btn.onclick = () => copyToClipboard(code.innerText.trim(), btn);
+                td.appendChild(btn);
+            });
+        }
+
         window.addEventListener("hashchange", navigate);
-        window.addEventListener("load", navigate);
+        window.addEventListener("load", () => {
+            navigate();
+            initCopyButtons();
+        });
         window.addEventListener("scroll", highlightTOC);
 
         const searchModal = document.getElementById('search-modal');
