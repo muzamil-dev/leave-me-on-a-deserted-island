@@ -33,7 +33,7 @@ Scrubbed automates the entire process. You enter your information once and the e
 
 ## Architecture
 
-Scrubbed is a monorepo with three Docker services:
+Scrubbed is a monorepo with three Docker services and an optional CLI:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -50,6 +50,9 @@ Scrubbed is a monorepo with three Docker services:
 │  Runner (Playwright + xvfb)                             │
 │  Browser automation, email listener, cron scheduler     │
 └─────────────────────────────────────────────────────────┘
+
+  CLI (Node.js)  -  talks to API at localhost:3001
+  Terminal UI with live logs, broker status, scan control
 ```
 
 | Package | Stack |
@@ -57,19 +60,85 @@ Scrubbed is a monorepo with three Docker services:
 | `packages/api` | Node.js 20, TypeScript, Express, SQLite (WAL), Zod |
 | `packages/runner` | Playwright 1.49, Playwright-Extra Stealth, imapflow, node-cron, xvfb |
 | `packages/dashboard` | React 18, Vite, Tailwind CSS, React Router v6 |
+| `packages/cli` | Node.js, TypeScript, Commander.js, Blessed |
 | `packages/broker-definitions` | YAML broker configs |
 
 ---
 
 ## How It Works
 
-1. **Profile setup** - enter your name, email, addresses, phone, date of birth, and any aliases in the dashboard
+1. **Profile setup** - enter your name, email, addresses, phone, date of birth, and any aliases
 2. **Start a scan** - triggers a queued run that the runner picks up within 10 seconds
 3. **Scout phase** - for each broker, Playwright searches the site to find your profile URL
 4. **Scrub phase** - navigates to the opt-out flow and executes broker-specific steps (form fills, button clicks, navigation)
 5. **Email confirmation** - IMAP listener polls your inbox, finds verification emails, and auto-clicks confirmation links
-6. **Live feedback** - dashboard polls every 3 seconds, streaming logs and updating status badges in real time
+6. **Live feedback** - logs stream in real time, status updates every 3 seconds
 7. **Reschedule** - cron job re-runs the full sweep automatically on your configured schedule
+
+---
+
+## Interfaces
+
+### Web Dashboard
+
+Start the dashboard and API:
+
+```bash
+docker compose up api dashboard
+```
+
+Open [http://localhost:3000](http://localhost:3000) to manage your profile, view broker status, and monitor scans.
+
+### CLI
+
+The CLI connects to the running API and provides a terminal UI as well as individual commands for scripting.
+
+**Install:**
+
+```bash
+cd packages/cli
+npm install
+npm run build
+sudo npm link
+```
+
+**Open the terminal UI:**
+
+```bash
+scrubbed
+```
+
+The TUI shows live logs, broker status, run progress, and discovered profile URLs. Navigate brokers with arrow keys and press Enter to open a discovered URL in your browser.
+
+**Key bindings:**
+
+| Key | Action |
+|---|---|
+| `s` | Start a new scan |
+| `r` | Refresh all data |
+| `tab` | Focus log panel |
+| `esc` | Unfocus / back to brokers |
+| `enter` | Open selected broker URL in browser |
+| `q` | Quit |
+
+**Individual commands:**
+
+```bash
+scrubbed status                     # overview of profile and latest run
+scrubbed profile show               # display current profile
+scrubbed profile setup              # interactive profile setup
+scrubbed scan start                 # queue a new scan
+scrubbed scan watch                 # start scan and stream logs until done
+scrubbed scan status                # show latest run progress
+scrubbed scan status --id <runId>   # specific run
+scrubbed scan results <runId>       # per-broker results table
+scrubbed brokers                    # list all brokers with status
+scrubbed logs                       # show recent logs
+scrubbed logs --follow              # tail logs live
+scrubbed discovered                 # list discovered profile URLs
+```
+
+Point the CLI at a remote API with `SCRUBBED_API_URL=http://your-server:3001 scrubbed`.
 
 ---
 
@@ -84,10 +153,12 @@ Scrubbed is a monorepo with three Docker services:
 - [x] Email confirmation auto-handling via IMAP
 - [x] Stealth browser (xvfb + Playwright-Extra, randomized user agents, human-like delays)
 - [x] Screenshot capture on failures for debugging
-- [x] Real-time log streaming to dashboard
+- [x] Per-broker error recording for failed runs
+- [x] Real-time log streaming to dashboard and CLI
 - [x] Scheduled re-runs via cron
 - [x] SQLite WAL database with full run and result history
-- [x] Live dashboard (run progress, broker status, exposure tracker, logs)
+- [x] Web dashboard (run progress, broker status, exposure tracker, logs)
+- [x] Terminal UI with live logs, broker navigation, and in-browser URL opening
 - [x] Docker Compose deployment (API + Runner + Dashboard)
 - [x] 12 broker definitions: Whitepages, Spokeo, BeenVerified, CheckPeople, ClustrMaps, Intelius, MyLife, Nuwber, PublicDataUSA, Radaris, SmartBackgroundChecks, ThatsThem
 
@@ -109,6 +180,7 @@ Scrubbed is a monorepo with three Docker services:
 ### Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/)
+- Node.js 20+ (CLI only)
 
 ### Setup
 

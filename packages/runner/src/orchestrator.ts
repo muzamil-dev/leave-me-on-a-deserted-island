@@ -108,15 +108,15 @@ export async function run(runId: string) {
         
         await log(`[${broker.name}] Initiating Scrub...`);
         const result = await executeBroker(page as any, broker, profile);
-        
-        db.prepare(`
-          INSERT INTO opt_out_results (run_id, broker_id, status, submitted_at)
-          VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-        `).run(runId, broker.id, result.status);
 
-        if (result.status === 'submitted') completed++; else failed++;
+        db.prepare(`
+          INSERT INTO opt_out_results (run_id, broker_id, status, error, screenshot_path, submitted_at)
+          VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `).run(runId, broker.id, result.status, result.error ?? null, result.screenshotPath ?? null);
+
+        if (result.status === 'failed') failed++; else completed++;
       } else {
-        await log(`[${broker.name}] No exposure detected. skipping.`);
+        await log(`[${broker.name}] No exposure detected. Skipping.`);
         completed++;
         db.prepare(`
           INSERT INTO opt_out_results (run_id, broker_id, status, submitted_at)
@@ -126,6 +126,10 @@ export async function run(runId: string) {
     } catch (err: any) {
       await log(`[${broker.name}] ERROR: ${err.message}`);
       failed++;
+      db.prepare(`
+        INSERT INTO opt_out_results (run_id, broker_id, status, error, submitted_at)
+        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `).run(runId, broker.id, 'failed', err.message);
     } finally {
       await page.close();
     }
