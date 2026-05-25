@@ -52,10 +52,10 @@
         h1 { font-size: 2.75rem; margin: 0 0 1.5rem; color: var(--text-main); font-weight: 800; letter-spacing: -0.03em; }
         .subtitle { font-size: 1.2rem; color: var(--text-dim); margin-bottom: 4rem; font-weight: 300; }
         h2 { font-size: 1.85rem; margin: 4.5rem 0 1.5rem; color: var(--nord8); font-weight: 700; scroll-margin-top: 100px; }
-        h3 { font-size: 1.3rem; margin: 2.5rem 0 1rem; color: var(--nord9); font-weight: 600; }
+        h3 { font-size: 1.35rem; margin: 2.5rem 0 1rem; color: var(--nord9); font-weight: 600; }
         p { margin-bottom: 1.5rem; color: var(--nord4); font-size: 1.05rem; }
         ul { margin-bottom: 2rem; padding-left: 1.5rem; color: var(--nord4); }
-        li { margin-bottom: 0.6rem; }
+        li { margin-bottom: 0.75rem; }
 
         .excel-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); margin: 2rem 0; font-size: 0.85rem; background: rgba(255, 255, 255, 0.01); }
         .excel-table th { background: var(--nord1); color: var(--nord8); border: 1px solid var(--border); padding: 0.8rem 1.2rem; font-weight: 700; text-align: left; text-transform: uppercase; font-size: 0.7rem; }
@@ -217,6 +217,7 @@
                 <h2 id="design-philosophy">Design Philosophy</h2>
                 <p>Scrubbed prioritizes clarity and high-fidelity feedback. In the world of automated tools, the user should never feel disconnected from the underlying process. Our UI strategy centers on <strong>Real-Time Transparency</strong>. Every action taken by the browser engine is streamed directly to the interface, ensuring that the "black box" of automation is fully opened for the user.</p>
                 <p>We chose the <strong>Nord color palette</strong> not just for its aesthetic appeal, but for its functional benefits. The arctic-inspired theme uses a specific contrast ratio that reduces eye strain during long-term monitoring. By utilizing a dark background with soft, frosted accents, we provide a professional environment that feels consistent whether you are using the Web Dashboard or the Terminal UI.</p>
+                <p>The choice of typography (Inter and Fira Code) ensures that technical information remains legible across all screen sizes. We emphasize information density without sacrificing whitespace, providing a clean interface that respects the user's focus.</p>
 
                 <h2 id="web-stack">The Web Stack: React 18 & Vite</h2>
                 <p>The Web Dashboard is built as a highly optimized Single Page Application (SPA). We chose <strong>React 18</strong> for its robust component model and efficient rendering of complex application states. During a removal sweep, hundreds of status updates are emitted; React's concurrent rendering capabilities ensure that the UI remains responsive and fluid even under heavy data loads.</p>
@@ -281,7 +282,7 @@
                 <p>The engine handles terminal-specific challenges like SIGWINCH signals (for window resizing) and complex keyboard focus management. The "Log Widget" uses a custom virtual scroll buffer, allowing you to scroll through thousands of lines of execution history without impacting the performance of the live stream. This makes the CLI as capable as the Web Dashboard for monitoring long-running operations.</p>
 
                 <h2 id="commander-dispatch">Command Dispatching</h2>
-                <p>Non-interactive commands (like <code>scrubbed scan start</code>) are handled by <strong>Commander.js</strong>. This architecture allows Scrubbed to be used in shell scripts and CI/CD pipelines. Each command is a standalone module that translates user arguments into optimized REST calls to the backend API. We use **Chalk** for rich colors and **CLI-Table** for structured data output, ensuring technical clarity at every step.</p>
+                <p>Non-interactive commands (like <code>scrubbed scan start</code>) are handled by <strong>Commander.js</strong>. This architecture allows Scrubbed to be used in shell scripts and CI/CD pipelines. Each command is a standalone module that translates user arguments into optimized REST calls to the backend API. We use <strong>Chalk</strong> for rich colors and <strong>CLI-Table</strong> for structured data output, ensuring technical clarity at every step.</p>
 
                 <div class="page-nav">
                     <a href="#web-arch" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Web Architecture</span></div></a>
@@ -298,7 +299,7 @@
                     <h2 id="linux-steps">Setup Steps</h2>
                     <table class="excel-table"><thead><tr><th>Phase</th><th>Step</th><th>Command</th></tr></thead><tbody>
                         <tr><td>Initial</td><td>1. Clone Repo</td><td><code>git clone https://github.com/muzamil-dev/leave-me-on-a-deserted-island</code></td></tr>
-                        <tr><td>Config</td><td>2. Setup Env</td><td><code>cp .env.example .env</code></td></tr>
+                        <tr><td>Setup</td><td>2. Configure</td><td><code>cp .env.example .env</code></td></tr>
                         <tr><td>Run</td><td>3. Launch</td><td><code>docker compose up --build</code></td></tr>
                     </tbody></table>
                 </div>
@@ -306,7 +307,7 @@
                     <h2 id="windows-steps">Setup Steps</h2>
                     <table class="excel-table"><thead><tr><th>Phase</th><th>Step</th><th>Command (PowerShell)</th></tr></thead><tbody>
                         <tr><td>Initial</td><td>1. Clone Repo</td><td><code>git clone https://github.com/muzamil-dev/leave-me-on-a-deserted-island</code></td></tr>
-                        <tr><td>Config</td><td>2. Setup Env</td><td><code>copy .env.example .env</code></td></tr>
+                        <tr><td>Setup</td><td>2. Configure</td><td><code>copy .env.example .env</code></td></tr>
                         <tr><td>Run</td><td>3. Launch</td><td><code>docker compose up --build</code></td></tr>
                     </tbody></table>
                 </div>
@@ -411,13 +412,15 @@ scrubbed discovered                 # list discovered profile URLs</code></pre>
                 <h2 id="data-residency">Data Residency & Ownership</h2>
                 <p>Scrubbed is built on the core principle of <strong>Local-First Data Ownership</strong>. Unlike commercial privacy services, Scrubbed does not require you to create a cloud account or upload your identity documents to our servers. Every piece of information—your name, address history, phone numbers, and found Exposure URLs—remains exclusively on your own machine. This decentralization is our strongest security feature.</p>
                 <p>The SQLite database that houses your profile is protected by AES-256 encryption at rest, using your `MASTER_PASSWORD` as the key. This password is never transmitted to us or any third party. Your data residency is 100% under your control, and your privacy instance operates as a closed loop between your hardware and the data brokers you choose to scrub. We have no way to "peek" into your database or see your removal history.</p>
+                <p>Because Scrubbed is self-hosted, the retention period for your data is determined entirely by you. You can purge your scan history, remove your profile, or wipe the entire database at any time. We do not maintain any logs of your activity, nor do we track which brokers are most active for our users. Your data sovereignty is absolute.</p>
 
                 <h2 id="network-transparency">Network Transparency</h2>
                 <p>All network traffic generated by Scrubbed is transparent and auditable. The Runner service communicates directly with data broker websites via an automated Chromium browser. There are no middleman proxy servers controlled by the Scrubbed project that can see or intercept your traffic. This direct communication model ensures that no third party can build a profile of your "removal activity."</p>
-                <p>Because Scrubbed is self-hosted, the retention period for your data is determined entirely by you. You can purge your scan history, remove your profile, or wipe the entire database at any time. We do not maintain any logs of your activity, nor do we track which brokers are most active for our users.</p>
+                <p>We do not use any telemetry, tracking pixels, or third-party analytics (like Google Analytics) within the application or the dashboard. We believe that a privacy tool must, first and foremost, be invisible to everyone except its owner. Your usage of Scrubbed is entirely private, and we do not collect metadata about when or how you use the tool.</p>
 
                 <h2 id="encryption-standard">Encryption Standards</h2>
                 <p>Sensitive credentials, such as your IMAP password for email verification, are never stored in plain text. Scrubbed uses the Web Crypto API to implement industry-standard encryption. We use a salted PBKDF2 derivation function to transform your `MASTER_PASSWORD` into a unique encryption key, making brute-force attacks on your local database computationally expensive.</p>
+                <p>This encryption applies not just to passwords, but to any field marked as "sensitive" in the database schema. This includes your specific search queries and the exact URLs where your profiles were found. We treat every piece of your identity as highly confidential, ensuring that your privacy is protected even from other users of the same machine.</p>
 
                 <h2 id="auditability">Auditability & Open Source</h2>
                 <p>The entire source code of Scrubbed is open and available for public audit. We encourage security-conscious users to review our Playwright implementation, our database schema, and our encryption routines. Our goal is to earn your trust through engineering transparency rather than legal marketing. By keeping the code open, we ensure that anyone can verify our privacy claims for themselves.</p>
@@ -459,7 +462,8 @@ scrubbed discovered                 # list discovered profile URLs</code></pre>
         function generateTOC() {
             const activeSection = document.querySelector("section.active");
             if (!activeSection) return;
-            tocContainer.innerHTML = Array.from(activeSection.querySelectorAll("h2")).map(h => `<a href="#${h.id || h.innerText.toLowerCase().replace(/\s+/g, '-')}" class="toc-link">${h.innerText}</a>`).join('');
+            const headings = activeSection.querySelectorAll("h2");
+            tocContainer.innerHTML = Array.from(headings).map(h => `<a href="#${h.id || h.innerText.toLowerCase().replace(/\s+/g, '-')}" class="toc-link">${h.innerText}</a>`).join('');
         }
 
         function highlightTOC() {
@@ -495,21 +499,16 @@ scrubbed discovered                 # list discovered profile URLs</code></pre>
             generateTOC();
         }
 
-        // Copy Utility
         function copyToClipboard(text, btn) {
             navigator.clipboard.writeText(text).then(() => {
                 const originalHtml = btn.innerHTML;
                 btn.innerHTML = '<i class="material-icons-round" style="font-size:14px;color:var(--nord14)">done</i>';
                 btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.innerHTML = originalHtml;
-                    btn.classList.remove('copied');
-                }, 2000);
+                setTimeout(() => { btn.innerHTML = originalHtml; btn.classList.remove('copied'); }, 2000);
             });
         }
 
         function initCopyButtons() {
-            // Add buttons to all PRE blocks
             document.querySelectorAll('pre code').forEach(code => {
                 const pre = code.parentElement;
                 pre.parentElement.classList.add('code-wrap');
@@ -519,14 +518,11 @@ scrubbed discovered                 # list discovered profile URLs</code></pre>
                 btn.onclick = () => copyToClipboard(code.innerText.trim(), btn);
                 pre.parentElement.appendChild(btn);
             });
-
-            // Add buttons to all Table code blocks
             document.querySelectorAll('.excel-table code').forEach(code => {
                 const td = code.parentElement;
                 const btn = document.createElement('button');
                 btn.className = 'copy-btn';
-                btn.style.top = '50%';
-                btn.style.transform = 'translateY(-50%)';
+                btn.style.top = '50%'; btn.style.transform = 'translateY(-50%)';
                 btn.innerHTML = '<i class="material-icons-round" style="font-size:12px">content_copy</i>';
                 btn.onclick = () => copyToClipboard(code.innerText.trim(), btn);
                 td.appendChild(btn);
@@ -534,27 +530,21 @@ scrubbed discovered                 # list discovered profile URLs</code></pre>
         }
 
         window.addEventListener("hashchange", navigate);
-        window.addEventListener("load", () => {
-            navigate();
-            initCopyButtons();
-        });
+        window.addEventListener("load", () => { navigate(); initCopyButtons(); });
         window.addEventListener("scroll", highlightTOC);
 
         const searchModal = document.getElementById('search-modal');
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
         let selectedIndex = -1;
-
         function openSearch() { searchModal.classList.add('active'); searchInput.focus(); renderResults(""); }
         function closeSearch(e) { if (!e || e.target === searchModal) { searchModal.classList.remove('active'); searchInput.value = ""; } }
-
         function renderResults(query) {
             const index = Array.from(sections).map(s => ({ id: s.id, title: s.querySelector('h1, h2')?.innerText || s.id, text: s.innerText.toLowerCase().replace(/\s+/g, ' ') }));
             const filtered = query ? index.filter(item => item.text.includes(query.toLowerCase()) || item.title.toLowerCase().includes(query.toLowerCase())) : index.slice(0, 8);
             searchResults.innerHTML = filtered.map((item, i) => `<div class="search-result-item ${i === 0 ? 'selected' : ''}" onclick="window.location.hash='#${item.id}';closeSearch()" data-hash="#${item.id}"><span class="res-title">${item.title}</span><span class="res-preview">${item.text.substring(0, 100)}...</span></div>`).join('');
             selectedIndex = filtered.length > 0 ? 0 : -1;
         }
-
         searchInput.addEventListener('input', (e) => renderResults(e.target.value));
         window.addEventListener('keydown', (e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
