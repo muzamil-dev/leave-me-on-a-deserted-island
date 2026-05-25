@@ -131,7 +131,6 @@
                 <a href="#introduction" class="active"><i class="material-icons-round">info</i> Introduction</a>
                 <a href="#features"><i class="material-icons-round">star_outline</i> Features</a>
                 <a href="#how-it-works"><i class="material-icons-round">settings_input_component</i> How It Works</a>
-                <a href="#ui-design"><i class="material-icons-round">palette</i> UI & Experience</a>
             </nav></div>
             <div class="nav-group"><div class="nav-label">Architecture</div><nav>
                 <a href="#web-arch"><i class="material-icons-round">language</i> Web & API</a>
@@ -145,6 +144,7 @@
             <div class="nav-group"><div class="nav-label">Project</div><nav>
                 <a href="#brokers"><i class="material-icons-round">list</i> Coverage</a>
                 <a href="#privacy"><i class="material-icons-round">gpp_good</i> Privacy</a>
+                <a href="#acknowledgments"><i class="material-icons-round">volunteer_activism</i> Credits</a>
             </nav></div>
         </aside>
 
@@ -206,29 +206,6 @@
 
                 <div class="page-nav">
                     <a href="#features" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Features</span></div></a>
-                    <a href="#ui-design" class="nav-btn next"><div class="nav-label-stack"><span class="dir">Next</span><span class="title">UI & Experience</span></div><i class="material-icons-round">arrow_forward</i></a>
-                </div>
-            </section>
-
-            <section id="ui-design">
-                <h1>UI & Experience</h1>
-                <p class="subtitle">A deep dive into our frontend philosophy and the specialized technology stack that powers our interfaces.</p>
-
-                <h2 id="design-philosophy">Design Philosophy</h2>
-                <p>Scrubbed prioritizes clarity and high-fidelity feedback. In the world of automated tools, the user should never feel disconnected from the underlying process. Our UI strategy centers on <strong>Real-Time Transparency</strong>. Every action taken by the browser engine is streamed directly to the interface, ensuring that the "black box" of automation is fully opened for the user.</p>
-                <p>We chose the <strong>Nord color palette</strong> not just for its aesthetic appeal, but for its functional benefits. The arctic-inspired theme uses a specific contrast ratio that reduces eye strain during long-term monitoring. By utilizing a dark background with soft, frosted accents, we provide a professional environment that feels consistent whether you are using the Web Dashboard or the Terminal UI.</p>
-                <p>The choice of typography (Inter and Fira Code) ensures that technical information remains legible across all screen sizes. We emphasize information density without sacrificing whitespace, providing a clean interface that respects the user's focus.</p>
-
-                <h2 id="web-stack">The Web Stack: React 18 & Vite</h2>
-                <p>The Web Dashboard is built as a highly optimized Single Page Application (SPA). We chose <strong>React 18</strong> for its robust component model and efficient rendering of complex application states. During a removal sweep, hundreds of status updates are emitted; React's concurrent rendering capabilities ensure that the UI remains responsive and fluid even under heavy data loads.</p>
-                <p>To power the development and build process, we use <strong>Vite</strong>. Unlike traditional bundlers, Vite provides near-instantaneous hot module replacement, which allowed our team to iterate rapidly on complex data visualizations. For styling, we utilize <strong>Tailwind CSS</strong>. This utility-first approach ensures that our custom Nord theme is applied with absolute consistency across every component, while maintaining a tiny CSS footprint for fast initial loads.</p>
-
-                <h2 id="tui-stack">The Terminal Stack: Blessed Engine</h2>
-                <p>For power users and server administrators, the <strong>Terminal UI (TUI)</strong> provides a low-latency, high-performance alternative to the web. We leverage the <strong>Blessed</strong> library to create a stateful, widget-based dashboard inside the terminal. Blessed was selected because it treats the terminal as a true UI canvas, supporting complex features like mouse interaction, dynamic resizing, and a grid-based reactive layout.</p>
-                <p>The TUI isn't just a basic script; it's a full event-driven application. We implement custom widgets for log streaming that utilize a <strong>Virtual Scroll Buffer</strong>, allowing users to tail massive log outputs without consuming excessive memory. This ensures that Scrubbed remains a "hacker-first" tool that feels at home on a headless Linux server over an SSH connection.</p>
-
-                <div class="page-nav">
-                    <a href="#how-it-works" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">How It Works</span></div></a>
                     <a href="#web-arch" class="nav-btn next"><div class="nav-label-stack"><span class="dir">Next</span><span class="title">Web Architecture</span></div><i class="material-icons-round">arrow_forward</i></a>
                 </div>
             </section>
@@ -258,7 +235,7 @@
                 <p>The REST API is structured around the concept of "Task Atomicity." Every removal attempt is broken down into discrete steps. This allows the system to recover gracefully from network timeouts or broker UI glitches without having to restart the entire scan from scratch.</p>
 
                 <div class="page-nav">
-                    <a href="#ui-design" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">UI & Experience</span></div></a>
+                    <a href="#how-it-works" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">How It Works</span></div></a>
                     <a href="#cli-arch" class="nav-btn next"><div class="nav-label-stack"><span class="dir">Next</span><span class="title">CLI Architecture</span></div><i class="material-icons-round">arrow_forward</i></a>
                 </div>
             </section>
@@ -356,8 +333,9 @@
                 <h2 id="shell-usage">Shell Commands</h2>
                 <p>The CLI is designed for speed and power. Below is a complete reference of all commands available in the <code>scrubbed</code> utility.</p>
                 
-                <div class="code-wrap">
-                    <pre><code># Profile Management
+                <div class="code-wrap" style="border: 1px solid var(--border); border-radius: 12px; background: var(--nord0); padding: 0.5rem;">
+                    <div style="padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border); color: var(--nord8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">Terminal Reference</div>
+                    <pre style="border: none; margin: 0; background: transparent;"><code># Profile Management
 scrubbed profile show               # display current profile
 scrubbed profile setup              # interactive profile setup
 
@@ -384,20 +362,20 @@ scrubbed discovered                 # list discovered profile URLs</code></pre>
             <section id="brokers">
                 <h1>Broker Coverage</h1>
                 <p class="subtitle">Scrubbed currently supports automated removal from these 12 major data brokers.</p>
-                <table class="excel-table"><thead><tr><th>Broker Name</th><th>Domain</th><th>Status</th></tr></thead><tbody>
-                    <tr><td>Whitepages</td><td>whitepages.com</td><td>Active</td></tr>
-                    <tr><td>Spokeo</td><td>spokeo.com</td><td>Active</td></tr>
-                    <tr><td>BeenVerified</td><td>beenverified.com</td><td>Active</td></tr>
-                    <tr><td>CheckPeople</td><td>checkpeople.com</td><td>Active</td></tr>
-                    <tr><td>ClustrMaps</td><td>clustrmaps.com</td><td>Active</td></tr>
-                    <tr><td>Intelius</td><td>intelius.com</td><td>Active</td></tr>
-                    <tr><td>MyLife</td><td>mylife.com</td><td>Active</td></tr>
-                    <tr><td>Nuwber</td><td>nuwber.com</td><td>Active</td></tr>
-                    <tr><td>PublicDataUSA</td><td>publicdatausa.com</td><td>Active</td></tr>
-                    <tr><td>Radaris</td><td>radaris.com</td><td>Active</td></tr>
-                    <tr><td>SmartBackgroundChecks</td><td>smartbackgroundchecks.com</td><td>Active</td></tr>
-                    <tr><td>ThatsThem</td><td>thatsthem.com</td><td>Active</td></tr>
-                    <tr><td colspan="3" style="text-align: center; font-style: italic; color: var(--nord3);">More to come... we are constantly expanding our coverage.</td></tr>
+                <table class="excel-table"><thead><tr><th>Broker Name</th><th>Primary Domain</th></tr></thead><tbody>
+                    <tr><td>Whitepages</td><td>whitepages.com</td></tr>
+                    <tr><td>Spokeo</td><td>spokeo.com</td></tr>
+                    <tr><td>BeenVerified</td><td>beenverified.com</td></tr>
+                    <tr><td>CheckPeople</td><td>checkpeople.com</td></tr>
+                    <tr><td>ClustrMaps</td><td>clustrmaps.com</td></tr>
+                    <tr><td>Intelius</td><td>intelius.com</td></tr>
+                    <tr><td>MyLife</td><td>mylife.com</td></tr>
+                    <tr><td>Nuwber</td><td>nuwber.com</td></tr>
+                    <tr><td>PublicDataUSA</td><td>publicdatausa.com</td></tr>
+                    <tr><td>Radaris</td><td>radaris.com</td></tr>
+                    <tr><td>SmartBackgroundChecks</td><td>smartbackgroundchecks.com</td></tr>
+                    <tr><td>ThatsThem</td><td>thatsthem.com</td></tr>
+                    <tr><td colspan="2" style="text-align: center; font-style: italic; color: var(--nord3); padding: 1.5rem;">More to come... we are constantly expanding our coverage database.</td></tr>
                 </tbody></table>
                 <div class="page-nav">
                     <a href="#cli-usage" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Usage Guide</span></div></a>
@@ -425,7 +403,26 @@ scrubbed discovered                 # list discovered profile URLs</code></pre>
                 <h2 id="auditability">Auditability & Open Source</h2>
                 <p>The entire source code of Scrubbed is open and available for public audit. We encourage security-conscious users to review our Playwright implementation, our database schema, and our encryption routines. Our goal is to earn your trust through engineering transparency rather than legal marketing. By keeping the code open, we ensure that anyone can verify our privacy claims for themselves.</p>
 
-                <div class="page-nav"><a href="#brokers" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Coverage</span></div></a></div>
+                <div class="page-nav">
+                    <a href="#brokers" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Coverage</span></div></a>
+                    <a href="#acknowledgments" class="nav-btn next"><div class="nav-label-stack"><span class="dir">Next</span><span class="title">Credits</span></div><i class="material-icons-round">arrow_forward</i></a>
+                </div>
+            </section>
+
+            <section id="acknowledgments">
+                <h1>Credits & Acknowledgments</h1>
+                <p class="subtitle">Scrubbed is built on the foundational research and technology provided by the open-source community.</p>
+
+                <h2 id="privacy-research">Privacy Research</h2>
+                <p>The core automation logic and broker mappings in Scrubbed were made possible by the incredible research found in the <strong>Big-Ass Data Broker Opt-Out List</strong> by Yael Grauer. This project provides a comprehensive database of removal procedures that served as the primary reference for our YAML broker definitions.</p>
+                <p>We utilized this list to understand the specific URL endpoints, form requirements, and verification steps for each broker, allowing us to translate manual instructions into stable, automated browser scripts.</p>
+
+                <h2 id="interface-tech">Interface Technology</h2>
+                <p>The high-performance Terminal UI is powered by the <strong>Blessed</strong> library. We chose Blessed because it allows for a stateful, widget-based interaction model that traditional terminal scripts cannot achieve. It provides the mouse support, dynamic layout grid, and event-driven architecture that makes the <code>scrubbed</code> CLI feel like a desktop application.</p>
+
+                <div class="page-nav">
+                    <a href="#privacy" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Privacy Policy</span></div></a>
+                </div>
             </section>
 
             <footer style="margin-top: 8rem; padding-bottom: 4rem; border-top: 1px solid var(--border); color: var(--nord3); font-size: 0.85rem; padding-top: 2rem;">
