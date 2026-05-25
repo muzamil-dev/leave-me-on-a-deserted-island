@@ -21,13 +21,25 @@
         html { scroll-behavior: smooth; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; line-height: 1.7; font-size: 15px; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
         
-        header.top-bar { height: var(--header-height); background: var(--header-bg); border-bottom: 1px solid var(--border); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 2rem; display: flex; align-items: center; backdrop-filter: blur(12px); }
-        .logo { display: flex; align-items: center; gap: 0.6rem; font-size: 1.2rem; font-weight: 800; color: var(--primary); text-decoration: none; white-space: nowrap; margin-right: 2.5rem; }
-        .search-trigger { background: var(--nord1); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.75rem; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; width: 300px; transition: all 0.2s; }
+        header.top-bar {
+            height: var(--header-height);
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            backdrop-filter: blur(12px);
+        }
+        .logo { display: flex; align-items: center; gap: 0.6rem; font-size: 1.2rem; font-weight: 800; color: var(--primary); text-decoration: none; white-space: nowrap; }
+        .search-trigger { background: var(--nord1); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.75rem; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; width: 420px; transition: all 0.2s; }
         .search-trigger:hover { background: var(--nord2); border-color: var(--nord8); }
         .search-trigger .kcmd { margin-left: auto; background: var(--nord0); padding: 1px 5px; border-radius: 4px; font-size: 0.7rem; border: 1px solid var(--border); font-weight: 700; }
         
-        .header-actions { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; }
+        .header-actions { display: flex; align-items: center; gap: 0.75rem; justify-content: flex-end; }
         .top-btn { display: flex; align-items: center; gap: 0.5rem; color: var(--text-main); text-decoration: none; font-size: 0.85rem; font-weight: 600; padding: 0.5rem 0.8rem; border-radius: 6px; background: var(--nord1); border: 1px solid var(--border); transition: all 0.2s; }
         .top-btn:hover { background: var(--nord2); border-color: var(--nord8); }
 
