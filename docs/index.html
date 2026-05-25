@@ -212,16 +212,19 @@
 
             <section id="ui-design">
                 <h1>UI & Experience</h1>
-                <p class="subtitle">Clarity and transparency for complex background operations.</p>
+                <p class="subtitle">A deep dive into our frontend philosophy and the specialized technology stack that powers our interfaces.</p>
 
-                <h2 id="visual-strat">Visual Strategy</h2>
-                <p>Scrubbed is built on the Nord color palette, an arctic-inspired theme designed for readability and professional aesthetics. We use high-contrast text for critical status indicators (Active, Failed, Confirmed) while maintaining a subdued background that is easy on the eyes during long-running scans. Every element is designed to feel cohesive and technical.</p>
-                <p>Our UI strategy focuses on "Live Engine Streams." We believe you should never wonder what an automated tool is doing. Both the Dashboard and TUI provide a dedicated panel that streams the Runner's internal logs in real-time, allowing you to see every navigation, form fill, and broker response as it happens. This transparency builds trust in the automation engine.</p>
-                <p>The choice of typography (Inter and Fira Code) ensures that technical information remains legible across all screen sizes. We emphasize information density without sacrificing whitespace, providing a clean interface that respects the user's focus.</p>
+                <h2 id="design-philosophy">Design Philosophy</h2>
+                <p>Scrubbed prioritizes clarity and high-fidelity feedback. In the world of automated tools, the user should never feel disconnected from the underlying process. Our UI strategy centers on <strong>Real-Time Transparency</strong>. Every action taken by the browser engine is streamed directly to the interface, ensuring that the "black box" of automation is fully opened for the user.</p>
+                <p>We chose the <strong>Nord color palette</strong> not just for its aesthetic appeal, but for its functional benefits. The arctic-inspired theme uses a specific contrast ratio that reduces eye strain during long-term monitoring. By utilizing a dark background with soft, frosted accents, we provide a professional environment that feels consistent whether you are using the Web Dashboard or the Terminal UI.</p>
 
-                <h2 id="responsive-design">Dual-Interface Control</h2>
-                <p>The **Web Dashboard** is the primary management hub. It uses React 18 and Tailwind CSS to provide a highly reactive experience, featuring animated progress bars for active sweeps and a "Manual Queue" that surfaces brokers requiring human help. It's fully responsive, working just as well on a tablet as it does on a desktop monitor.</p>
-                <p>The **Terminal UI (TUI)** is built for advanced users and server admins. It leverages the **Blessed** library to provide a high-performance, mouse-interactive dashboard directly in your shell. It supports dynamic panel resizing and custom keybindings for immediate control, making it the perfect companion for managing headless instances over SSH.</p>
+                <h2 id="web-stack">The Web Stack: React 18 & Vite</h2>
+                <p>The Web Dashboard is built as a highly optimized Single Page Application (SPA). We chose <strong>React 18</strong> for its robust component model and efficient rendering of complex application states. During a removal sweep, hundreds of status updates are emitted; React's concurrent rendering capabilities ensure that the UI remains responsive and fluid even under heavy data loads.</p>
+                <p>To power the development and build process, we use <strong>Vite</strong>. Unlike traditional bundlers, Vite provides near-instantaneous hot module replacement, which allowed our team to iterate rapidly on complex data visualizations. For styling, we utilize <strong>Tailwind CSS</strong>. This utility-first approach ensures that our custom Nord theme is applied with absolute consistency across every component, while maintaining a tiny CSS footprint for fast initial loads.</p>
+
+                <h2 id="tui-stack">The Terminal Stack: Blessed Engine</h2>
+                <p>For power users and server administrators, the <strong>Terminal UI (TUI)</strong> provides a low-latency, high-performance alternative to the web. We leverage the <strong>Blessed</strong> library to create a stateful, widget-based dashboard inside the terminal. Blessed was selected because it treats the terminal as a true UI canvas, supporting complex features like mouse interaction, dynamic resizing, and a grid-based reactive layout.</p>
+                <p>The TUI isn't just a basic script; it's a full event-driven application. We implement custom widgets for log streaming that utilize a <strong>Virtual Scroll Buffer</strong>, allowing users to tail massive log outputs without consuming excessive memory. This ensures that Scrubbed remains a "hacker-first" tool that feels at home on a headless Linux server over an SSH connection.</p>
 
                 <div class="page-nav">
                     <a href="#how-it-works" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">How It Works</span></div></a>
@@ -250,7 +253,7 @@
 
                 <h2 id="api-deep-dive">The Core API (Express)</h2>
                 <p>The API service is the central nervous system of Scrubbed. Built on Node.js 20 and Express, it manages the persistent state of your profiles, the registry of data brokers, and the history of every scan "run." It provides a clean RESTful interface that the Dashboard and CLI use to query data, ensuring a unified state across all clients.</p>
-                <p>Crucially, the API and Runner share a single SQLite database. By utilizing **WAL (Write-Ahead Logging)** mode, we allow the Runner to perform high-frequency updates (like logging progress) while the API continues to serve read requests to the UI without blocking. Every data point is validated using **Zod** to ensure absolute schema integrity, preventing corrupted data from entering the automation pipeline.</p>
+                <p>Crucially, the API and Runner share a single SQLite database. By utilizing <strong>WAL (Write-Ahead Logging)</strong> mode, we allow the Runner to perform high-frequency updates (like logging progress) while the API continues to serve read requests to the UI without blocking. Every data point is validated using <strong>Zod</strong> to ensure absolute schema integrity, preventing corrupted data from entering the automation pipeline.</p>
                 <p>The REST API is structured around the concept of "Task Atomicity." Every removal attempt is broken down into discrete steps. This allows the system to recover gracefully from network timeouts or broker UI glitches without having to restart the entire scan from scratch.</p>
 
                 <div class="page-nav">
@@ -274,11 +277,11 @@
 └─────────────────────────┘      └─────────────────────────┘</pre></div>
 
                 <h2 id="tui-blessed-detail">The Blessed Engine</h2>
-                <p>The CLI's interactive mode is powered by **Blessed**, a high-level terminal interface library. Unlike a basic command-line script, Blessed allows us to build a stateful, event-driven UI. We implement a grid-based layout where the Status, Brokers, and Log panels are independent widgets that update reactively. This architecture provides a desktop-class UI experience inside a standard terminal emulator.</p>
+                <p>The CLI's interactive mode is powered by <strong>Blessed</strong>, a high-level terminal interface library. Unlike a basic command-line script, Blessed allows us to build a stateful, event-driven UI. We implement a grid-based layout where the Status, Brokers, and Log panels are independent widgets that update reactively. This architecture provides a desktop-class UI experience inside a standard terminal emulator.</p>
                 <p>The engine handles terminal-specific challenges like SIGWINCH signals (for window resizing) and complex keyboard focus management. The "Log Widget" uses a custom virtual scroll buffer, allowing you to scroll through thousands of lines of execution history without impacting the performance of the live stream. This makes the CLI as capable as the Web Dashboard for monitoring long-running operations.</p>
 
                 <h2 id="commander-dispatch">Command Dispatching</h2>
-                <p>Non-interactive commands (like <code>scrubbed scan start</code>) are handled by **Commander.js**. This architecture allows Scrubbed to be used in shell scripts and CI/CD pipelines. Each command is a standalone module that translates user arguments into optimized REST calls to the backend API. We use **Chalk** for rich colors and **CLI-Table** for structured data output, ensuring technical clarity at every step.</p>
+                <p>Non-interactive commands (like <code>scrubbed scan start</code>) are handled by <strong>Commander.js</strong>. This architecture allows Scrubbed to be used in shell scripts and CI/CD pipelines. Each command is a standalone module that translates user arguments into optimized REST calls to the backend API. We use **Chalk** for rich colors and **CLI-Table** for structured data output, ensuring technical clarity at every step.</p>
 
                 <div class="page-nav">
                     <a href="#web-arch" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Web Architecture</span></div></a>
@@ -406,7 +409,7 @@ scrubbed discovered                 # list discovered profile URLs</code></pre>
                 <p class="subtitle">Our commitment to your absolute data sovereignty.</p>
 
                 <h2 id="data-residency">Data Residency & Ownership</h2>
-                <p>Scrubbed is built on the core principle of **Local-First Data Ownership**. Unlike commercial privacy services, Scrubbed does not require you to create a cloud account or upload your identity documents to our servers. Every piece of information—your name, address history, phone numbers, and found Exposure URLs—remains exclusively on your own machine. This decentralization is our strongest security feature.</p>
+                <p>Scrubbed is built on the core principle of <strong>Local-First Data Ownership</strong>. Unlike commercial privacy services, Scrubbed does not require you to create a cloud account or upload your identity documents to our servers. Every piece of information—your name, address history, phone numbers, and found Exposure URLs—remains exclusively on your own machine. This decentralization is our strongest security feature.</p>
                 <p>The SQLite database that houses your profile is protected by AES-256 encryption at rest, using your `MASTER_PASSWORD` as the key. This password is never transmitted to us or any third party. Your data residency is 100% under your control, and your privacy instance operates as a closed loop between your hardware and the data brokers you choose to scrub. We have no way to "peek" into your database or see your removal history.</p>
 
                 <h2 id="network-transparency">Network Transparency</h2>
