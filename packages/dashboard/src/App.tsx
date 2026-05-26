@@ -1,15 +1,66 @@
 import { BrowserRouter as Router, Routes, Route, NavLink, Link } from 'react-router-dom';
-import { ShieldCheck, Settings, Play, Search, Command, User, CheckCircle2, AlertCircle, Loader2, Globe, HelpCircle, Mail, Shield, Zap, ExternalLink, Trash2, Plus, Terminal } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Settings, Play, Search, Command, User, CheckCircle2, Loader2, HelpCircle, Mail, Shield, Zap, ExternalLink, Trash2, Terminal } from 'lucide-react';
+import { useEffect, useId, useRef, useState } from 'react';
 import axios from 'axios';
 import clsx from 'clsx';
 
 const API_URL = window.location.origin + '/api';
 
+// ── Brand mark ────────────────────────────────────────────────────────────────
+const INK = '#0E1013';
+const PAPER = '#F2EFE9';
+const BLUE = '#5E81AC';
+
+function Mark({ size = 120, animate = false }: { size?: number; animate?: boolean }) {
+  const clipId = useId();
+  const [t, setT] = useState(0);
+
+  useEffect(() => {
+    if (!animate) return;
+    let raf: number;
+    let start: number | null = null;
+    const loop = (now: number) => {
+      if (!start) start = now;
+      const phase = ((now - start) / 1000 % 3.2) / 3.2;
+      let v: number;
+      if (phase < 0.5) v = phase / 0.5;
+      else if (phase < 0.7) v = 1;
+      else v = 1 - (phase - 0.7) / 0.3;
+      setT(v);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [animate]);
+
+  const dx = animate ? -180 + t * 180 : 0;
+
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" style={{ display: 'block', flexShrink: 0 }} aria-hidden>
+      <defs>
+        <clipPath id={clipId}>
+          <rect x="0" y="0" width="120" height="120" rx="14" />
+        </clipPath>
+      </defs>
+      <rect x="0" y="0" width="120" height="120" rx="14" fill={INK} />
+      <g clipPath={`url(#${clipId})`}>
+        <rect x="22" y="22" width="76" height="14" rx="3" fill={PAPER} opacity={0.18} />
+        <rect x="22" y="42" width="76" height="14" rx="3" fill={PAPER} opacity={0.36} />
+        <rect x="22" y="62" width="76" height="14" rx="3" fill={PAPER} opacity={0.62} />
+        <rect x="22" y="82" width="76" height="14" rx="3" fill={PAPER} />
+        <g transform={`rotate(-18 60 60) translate(${dx} 0)`}>
+          <rect x="-8" y="48" width="160" height="22" fill={BLUE} />
+          <rect x="-8" y="48" width="160" height="2" fill={INK} opacity={0.35} />
+          <rect x="-8" y="68" width="160" height="2" fill={INK} opacity={0.35} />
+        </g>
+      </g>
+    </svg>
+  );
+}
+
 const Dashboard = () => {
   const [stats, setStats] = useState({ brokers: 0, submissions: 0, confirmed: 0, manual: 0 });
   const [activeRun, setActiveRun] = useState<any>(null);
-  const [lastRun, setLastRun] = useState<any>(null);
   const [discovered, setDiscovered] = useState<any[]>([]);
   const [manualQueue, setManualQueue] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -37,7 +88,6 @@ const Dashboard = () => {
       }
       if (runsRes.status === 'fulfilled') {
         const latestRun = runsRes.value.data[0];
-        setLastRun(latestRun);
         if (latestRun && (latestRun.status === 'running' || latestRun.status === 'queued')) {
           setActiveRun(latestRun);
         } else {
@@ -79,11 +129,9 @@ const Dashboard = () => {
     <div className="max-w-6xl mx-auto py-10 px-6">
       <div className="bg-surface border border-border rounded-xl p-10 mb-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
         <div className="flex items-center gap-6">
-          <div className="flex-shrink-0 inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full border border-primary/20">
-            {activeRun ? <Loader2 className="text-primary animate-spin" size={32} /> : <ShieldCheck className="text-primary" size={32} />}
-          </div>
+          <Mark size={52} animate={!!activeRun} />
           <div>
-            <h1 className="text-2xl font-semibold text-nord6 tracking-tight">{activeRun ? 'Automation Active' : 'Privacy Command Center'}</h1>
+            <h1 className="text-2xl text-nord6 tracking-tight mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, letterSpacing: '-0.03em' }}>{activeRun ? 'Automation Active' : 'Privacy Command Center'}</h1>
             <p className="text-nord4 font-light text-sm max-w-sm">Broker removal engine is currently {activeRun ? 'scouting and scrubbing.' : 'idle. Start a scan to begin.'}</p>
           </div>
         </div>
@@ -106,7 +154,10 @@ const Dashboard = () => {
       {activeRun && (
         <div className="mb-10 bg-primary/5 border border-primary/20 rounded-xl p-6 shadow-inner animate-in fade-in slide-in-from-top-4">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Live Progress</span>
+            <div className="flex items-center gap-3">
+              <Mark size={28} animate />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Live Progress</span>
+            </div>
             <span className="text-xs text-nord4 font-mono">{activeRun.completed} / {activeRun.total_brokers}</span>
           </div>
           <div className="w-full bg-nord1 rounded-full h-1.5 overflow-hidden">
@@ -115,12 +166,12 @@ const Dashboard = () => {
         </div>
       )}
 
-      <div className="mb-10 bg-[#0d1117] border border-border rounded-xl shadow-sm overflow-hidden flex flex-col h-64 font-mono">
+      <div className="mb-10 bg-[#0d1117] border border-border rounded-xl shadow-sm overflow-hidden flex flex-col h-64">
         <div className="bg-black/20 px-4 py-2 border-b border-border flex items-center gap-2">
           <Terminal size={12} className="text-nord3" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-nord3">Live Engine Stream</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-nord3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Live Engine Stream</span>
         </div>
-        <div className="flex-1 overflow-auto p-4 text-[10px] space-y-1">
+        <div className="flex-1 overflow-auto p-4 text-[10px] space-y-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
           {logs.length === 0 ? <div className="text-nord3 italic opacity-50">Waiting for engine handshake...</div> : logs.map((log, i) => <div key={i} className={clsx("whitespace-pre-wrap break-all", log.includes('ERROR') ? 'text-nord11' : log.includes('found') ? 'text-nord14' : 'text-nord4')}>{log}</div>)}
           <div ref={logEndRef} />
         </div>
@@ -151,9 +202,14 @@ const Dashboard = () => {
       )}
 
       <div className="mb-10">
-        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-nord3 mb-4 ml-1">Live Exposures Found</h3>
+        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-nord3 mb-4 ml-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Live Exposures Found</h3>
         <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden min-h-[100px]">
-          {discovered.length === 0 ? <div className="p-16 text-center text-nord4 italic font-light text-sm bg-black/5">Scanning for exposures. Results will appear here automatically.</div> : (
+          {discovered.length === 0 ? (
+            <div className="p-16 flex flex-col items-center gap-5 bg-black/5">
+              <Mark size={40} />
+              <span className="text-nord4 italic font-light text-sm">No exposures found. Start a scan to search brokers.</span>
+            </div>
+          ) : (
             <table className="w-full text-left text-sm">
               <thead className="bg-black/10 border-b border-border"><tr><th className="px-6 py-4 font-bold text-nord4 uppercase text-[10px] tracking-widest">Broker</th><th className="px-6 py-4 font-bold text-nord4 uppercase text-[10px] tracking-widest">Live Profile URL</th><th className="px-6 py-4 font-bold text-nord4 uppercase text-[10px] tracking-widest text-right">Action</th></tr></thead>
               <tbody className="divide-y divide-border/30">
@@ -196,7 +252,10 @@ const Profile = () => {
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-6 animate-in fade-in duration-500">
-      <h2 className="text-2xl font-light text-nord6 mb-8 uppercase tracking-widest text-center">Identity Profile</h2>
+      <div className="flex items-center justify-center gap-4 mb-8">
+        <Mark size={28} />
+        <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, letterSpacing: '-0.03em', fontSize: '1.5rem', color: '#eceff4', margin: 0 }}>Identity Profile</h2>
+      </div>
       <form onSubmit={handleSubmit} className="bg-surface border border-border rounded-xl p-10 shadow-sm space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input label="First Name" value={profile.first_name || ''} onChange={(v: string) => setProfile({...profile, first_name: v})} required />
@@ -222,7 +281,10 @@ const Brokers = () => {
   useEffect(() => { axios.get(`${API_URL}/brokers`).then(res => setBrokers(res.data)).catch(console.error).finally(() => setLoading(false)); }, []);
   return (
     <div className="max-w-6xl mx-auto py-12 px-6">
-      <h2 className="text-2xl font-light text-nord6 mb-8 uppercase tracking-widest text-center">Broker Directory</h2>
+      <div className="flex items-center justify-center gap-4 mb-8">
+        <Mark size={28} />
+        <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, letterSpacing: '-0.03em', fontSize: '1.5rem', color: '#eceff4', margin: 0 }}>Broker Directory</h2>
+      </div>
       <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-left text-sm">
           <thead className="bg-black/20 border-b border-border"><tr><th className="px-6 py-4 font-bold text-nord4 uppercase text-[10px]">Broker</th><th className="px-6 py-4 font-bold text-nord4 uppercase text-[10px] text-center">Status</th><th className="px-6 py-4 font-bold text-nord4 uppercase text-[10px]">Method</th><th className="px-6 py-4 font-bold text-nord4 uppercase text-[10px] text-right">Last Scan</th></tr></thead>
@@ -235,20 +297,26 @@ const Brokers = () => {
 
 const Help = () => (
   <div className="max-w-4xl mx-auto py-12 px-6 space-y-12">
-    <div className="text-center"><h2 className="text-3xl font-light text-nord6 mb-4 tracking-tight uppercase tracking-widest">Documentation</h2><p className="text-nord4 font-light italic">Stay scrubbed.</p></div>
+    <div className="flex flex-col items-center gap-5">
+      <Mark size={64} />
+      <div className="text-center">
+        <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, letterSpacing: '-0.03em', fontSize: '2rem', color: '#eceff4', margin: '0 0 6px' }}>scrubbed</h2>
+        <p style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 500, fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#6B6F76', margin: 0 }}>self-hosted privacy</p>
+      </div>
+    </div>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <DocCard icon={<User className="text-primary" />} title="1. Identity" content="Ensure your city and state are accurate." />
-      <DocCard icon={<Mail className="text-nord14" />} title="2. Email" content="Verification links arrive via email." />
-      <DocCard icon={<Zap className="text-nord13" />} title="3. Scans" content="Engine searches and picks matches." />
-      <DocCard icon={<Shield className="text-nord10" />} title="4. Privacy" content="Data stays 100% local." />
+      <DocCard icon={<User className="text-primary" />} title="1. Identity" content="Ensure your city and state are accurate. The engine uses your profile to identify your listings on each broker." />
+      <DocCard icon={<Mail className="text-nord14" />} title="2. Email" content="Verification links from brokers arrive via your configured email. IMAP credentials let the engine auto-confirm." />
+      <DocCard icon={<Zap className="text-nord13" />} title="3. Scans" content="The engine searches each broker, fuzzy-matches your profile, and submits opt-out requests automatically." />
+      <DocCard icon={<Shield className="text-nord10" />} title="4. Privacy" content="Your data never leaves your machine. All profile info is stored locally in an encrypted SQLite database." />
     </div>
   </div>
 );
 
 const DocCard = ({ icon, title, content }: any) => (
-  <div className="bg-surface border border-border p-8 rounded-xl shadow-sm hover:border-nord3 transition-colors">
+  <div className="bg-surface border border-border p-8 rounded-xl shadow-sm hover:border-primary/40 transition-colors">
     <div className="mb-4">{icon}</div>
-    <h3 className="text-sm font-bold uppercase tracking-widest text-nord6 mb-3">{title}</h3>
+    <h3 className="text-xs font-bold uppercase tracking-widest text-nord6 mb-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{title}</h3>
     <p className="text-sm text-nord4 font-light leading-relaxed">{content}</p>
   </div>
 );
@@ -268,20 +336,20 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 const Input = ({ label, value, onChange, type = "text", required = false }: any) => (
   <div className="space-y-2">
-    <label className="text-[10px] font-bold uppercase tracking-widest text-nord4 ml-1">{label}{required && '*'}</label>
-    <input type={type} value={value} onChange={e => onChange(e.target.value)} required={required} className="w-full bg-background border border-border rounded-md px-4 py-2 text-sm text-nord6 focus:outline-none focus:ring-1 focus:ring-primary transition-all" />
+    <label className="text-[10px] font-bold uppercase tracking-widest text-nord4 ml-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{label}{required && '*'}</label>
+    <input type={type} value={value} onChange={e => onChange(e.target.value)} required={required} className="w-full bg-background border border-border rounded-md px-4 py-2 text-sm text-nord6 focus:outline-none focus:ring-1 focus:ring-primary transition-all" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
   </div>
 );
 
 const FlatStat = ({ title, value, color = "text-nord6" }: { title: string, value: string, color?: string }) => (
   <div className="bg-surface border border-border p-6 text-center rounded-xl shadow-sm">
-    <div className="text-nord4 text-[10px] font-bold uppercase tracking-[0.2em] mb-1 opacity-40">{title}</div>
-    <div className={clsx("text-3xl font-light", color)}>{value}</div>
+    <div className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 opacity-40" style={{ fontFamily: "'JetBrains Mono', monospace", color: '#6B6F76' }}>{title}</div>
+    <div className={clsx("text-3xl font-light", color)} style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.02em' }}>{value}</div>
   </div>
 );
 
 const NavItem = ({ to, label }: { to: string, label: string }) => (
-  <NavLink to={to} className={({ isActive }) => clsx("px-5 py-4 text-[11px] font-bold uppercase tracking-[0.2em] transition-all border-b-2", isActive ? "border-primary text-primary" : "border-transparent text-nord4 hover:text-nord6")}>{label}</NavLink>
+  <NavLink to={to} style={{ fontFamily: "'JetBrains Mono', monospace" }} className={({ isActive }) => clsx("px-5 py-4 text-[11px] font-bold uppercase tracking-[0.2em] transition-all border-b-2", isActive ? "border-primary text-primary" : "border-transparent text-nord4 hover:text-nord6")}>{label}</NavLink>
 );
 
 function App() {
@@ -297,13 +365,19 @@ function App() {
         <header className="bg-surface text-nord6 border-b border-border shadow-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-14">
             <div className="flex items-center gap-10">
-              <Link to="/" className="flex items-center gap-2 py-4 hover:opacity-80 transition-opacity"><ShieldCheck className="text-primary" size={22} /><span className="text-lg font-bold tracking-tighter">SCRUBBED</span></Link>
+              <Link to="/" className="flex items-center gap-5 py-4 hover:opacity-80 transition-opacity" aria-label="Scrubbed">
+                  <Mark size={32} />
+                  <div className="flex flex-col gap-0.5">
+                    <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: '1.05rem', letterSpacing: '-0.03em', color: '#eceff4', lineHeight: 1 }}>scrubbed</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 500, fontSize: '9px', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#6B6F76', lineHeight: 1 }}>self-hosted privacy</span>
+                  </div>
+                </Link>
               <nav className="hidden md:flex"><NavItem to="/profile" label="Profile" /><NavItem to="/brokers" label="Brokers" /><NavItem to="/help" label="Help" /></nav>
             </div>
             <div className="flex-1 max-w-md mx-8">
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Search size={14} className="text-nord3 group-focus-within:text-primary transition-colors" /></div>
-                <input ref={searchInputRef} type="text" className="block w-full bg-background border border-border rounded-md py-1.5 pl-10 pr-12 text-xs text-nord6 placeholder-nord3 focus:outline-none focus:ring-1 focus:ring-primary transition-all shadow-inner" placeholder="Analyze system..." />
+                <input ref={searchInputRef} type="text" className="block w-full bg-background border border-border rounded-md py-1.5 pl-10 pr-12 text-xs text-nord6 placeholder-nord3 focus:outline-none focus:ring-1 focus:ring-primary transition-all shadow-inner" placeholder="Search brokers, status..." style={{ fontFamily: "'JetBrains Mono', monospace" }} />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><div className="flex items-center gap-1 bg-border/50 px-1.5 py-0.5 rounded text-[10px] text-nord3 font-medium border border-border"><Command size={10} /><span>K</span></div></div>
               </div>
             </div>

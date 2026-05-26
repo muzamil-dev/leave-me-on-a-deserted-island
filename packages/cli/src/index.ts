@@ -6,6 +6,59 @@ import * as readline from 'readline';
 import { api, Profile, Run, Discovered } from './api';
 import { launchTUI } from './tui';
 
+// ── Brand banner ──────────────────────────────────────────────────────────────
+
+function banner(): void {
+  if (!process.stdout.isTTY) return;
+  const c    = chalk;
+  const blue = (s: string) => c.hex('#5E81AC')(s);
+  const mute = (s: string) => c.hex('#6B6F76')(s);
+  const br   = (s: string) => c.hex('#4a4e56')(s);
+
+  // Each inner content string is exactly 10 chars; wrapped with │ │ = 12 total.
+  // Color represents paper-on-ink opacity: row1=0.18 → row4=1.0
+  const B    = br('│');
+  const row  = (content: string) => B + content + B;
+  const barL = B + blue('╱╱╱╱╱╱╱╱╱╱') + B;
+
+  //  ╭──────────╮
+  //  │          │
+  //  │  ░ ░ ░ ░ │  scrubbed
+  //  │  ░░░░░░  │
+  //  │╱╱╱╱╱╱╱╱╱╱│  ─ ─ ─ ─ ─ ─ ─ ─ ─
+  //  │╱╱╱╱╱╱╱╱╱╱│  SELF-HOSTED PRIVACY
+  //  │  ▓▓▓▓▓▓  │
+  //  │  ████████│  automated opt-out engine
+  //  ╰──────────╯
+  const mark = [
+    br('╭──────────╮'),
+    row('          '),
+    row(c.hex('#3a3f47')('  ░ ░ ░ ░ ')),
+    row(c.hex('#4e545e')('  ░░░░░░  ')),
+    barL,
+    barL,
+    row(c.hex('#7a818a')('  ▓▓▓▓▓▓  ')),
+    row(c.hex('#adb3bc')('  ████████')),
+    br('╰──────────╯'),
+  ];
+
+  const right = [
+    '',
+    '',
+    `  ${c.bold.white('scrubbed')}`,
+    '',
+    `  ${blue('─ ─ ─ ─ ─ ─ ─ ─ ─')}`,
+    `  ${mute('SELF-HOSTED PRIVACY')}`,
+    '',
+    `  ${mute('automated opt-out engine')}`,
+    '',
+  ];
+
+  console.log();
+  mark.forEach((m, i) => console.log(m + (right[i] ?? '')));
+  console.log();
+}
+
 // ── Formatting helpers ────────────────────────────────────────────────────────
 
 function stripAnsi(s: string): string {
@@ -214,8 +267,38 @@ async function cmdScanWatch(): Promise<void> {
   console.log('\n' + chalk.green('  Run queued: ') + chalk.bold(run.id));
   console.log(chalk.gray('  Watching... (Ctrl+C stops watching, scan continues)\n'));
 
+  const isTTY = process.stdout.isTTY;
+  const TRACK = 12;
+  const BAR   = 4;
+  const TOTAL = (TRACK - BAR) * 2;
+  let frame = 0;
+  let spinTimer: ReturnType<typeof setInterval> | null = null;
+
+  function tickSpinner() {
+    const pos = frame <= (TRACK - BAR) ? frame : (TRACK - BAR) * 2 - frame;
+    const bar = chalk.hex('#5E81AC')('╱'.repeat(BAR));
+    const track = ' '.repeat(pos) + bar + ' '.repeat(TRACK - BAR - pos);
+    process.stdout.write('\r  ' + chalk.hex('#6B6F76')('scrubbing') + '  ' + track + '  ');
+    frame = (frame + 1) % TOTAL;
+  }
+
+  function startSpinner() {
+    if (!isTTY) return;
+    frame = 0;
+    spinTimer = setInterval(tickSpinner, 80);
+  }
+
+  function stopSpinner() {
+    if (!spinTimer) return;
+    clearInterval(spinTimer);
+    spinTimer = null;
+    process.stdout.write('\r' + ' '.repeat(36) + '\r');
+  }
+
   while (true) {
+    startSpinner();
     await new Promise(r => setTimeout(r, 2000));
+    stopSpinner();
 
     const [logs, runs] = await Promise.all([api.getLogs(), api.getRuns()]);
     logs.slice(seen).forEach(l => console.log(l));
@@ -385,13 +468,14 @@ program
 
 function cmdHelp() {
   const c = chalk;
-  const h = (s: string) => console.log('\n' + c.cyan.bold(s));
+  const h = (s: string) => console.log('\n' + c.hex('#5E81AC').bold(s));
   const cmd = (name: string, desc: string) =>
     console.log('  ' + c.bold(name.padEnd(36)) + c.gray(desc));
   const key = (k: string, desc: string) =>
     console.log('  ' + c.bold(k.padEnd(12)) + c.gray(desc));
 
-  console.log('\n' + c.blue.bold('  SCRUBBED') + c.gray('  Automated personal data removal from people-search brokers'));
+  banner();
+  console.log(c.gray('  Automated personal data removal from people-search brokers'));
 
   h('TERMINAL UI');
   console.log(c.gray('  Run with no arguments to open the interactive terminal UI:'));

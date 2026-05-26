@@ -40,7 +40,7 @@ export async function launchTUI(): Promise<void> {
     top: 0, left: 0,
     width: '100%', height: 1,
     tags: true,
-    style: { fg: 'white', bg: 'blue', bold: true },
+    style: { fg: 'white', bg: '#5E81AC', bold: true },
   });
 
   // ── Brokers panel (left, upper) ───────────────────────────────────────────
@@ -198,7 +198,7 @@ export async function launchTUI(): Promise<void> {
 
   function renderHeader(name: string, loc: string) {
     const right = loc ? `{grey-fg}${name}  ${loc}{/}` : `{grey-fg}${name}{/}`;
-    header.setContent(`  {bold}SCRUBBED{/bold}{|}${right}  `);
+    header.setContent(`  ╱ {bold}scrubbed{/bold}{|}${right}  `);
   }
 
   function renderBrokers(brokers: Broker[], discovered: Discovered[]) {
@@ -414,7 +414,7 @@ export async function launchTUI(): Promise<void> {
         const loc = [profile.city, profile.state].filter(Boolean).join(', ');
         renderHeader(name, loc);
       } else {
-        header.setContent('  {bold}SCRUBBED{/bold}{|}{yellow-fg}No profile — press p to set up{/}  ');
+        header.setContent('  ╱ {bold}scrubbed{/bold}{|}{yellow-fg}No profile — press p to set up{/}  ');
       }
 
       currentRun = (runs as Run[])[0] ?? null;
@@ -428,7 +428,7 @@ export async function launchTUI(): Promise<void> {
       startingRun = false;
       screen.render();
     } catch {
-      header.setContent('  {bold}SCRUBBED{/bold}{|}{red-fg}Cannot reach API at localhost:3001{/}  ');
+      header.setContent('  ╱ {bold}scrubbed{/bold}{|}{red-fg}Cannot reach API at localhost:3001{/}  ');
       screen.render();
     }
   }
@@ -583,7 +583,7 @@ export async function launchTUI(): Promise<void> {
 
   // ── Boot ──────────────────────────────────────────────────────────────────
 
-  header.setContent('  {bold}SCRUBBED{/bold}{|}{grey-fg}Loading...{/}  ');
+  header.setContent('  ╱ {bold}scrubbed{/bold}{|}{grey-fg}Loading...{/}  ');
   screen.render();
 
   brokersList.focus();

@@ -1,15 +1,13 @@
-<div align="center">
+<p align="center">
+  <img src="docs/brand/scrubbed-banner-animated.svg" alt="scrubbed — self-hosted privacy" width="480"/>
+</p>
 
-# Scrubbed
-
-**Automated personal data removal from people-search brokers**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/Node.js-20-green.svg)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org)
-[![Docker](https://img.shields.io/badge/Docker-Compose-blue.svg)](https://docs.docker.com/compose)
-
-</div>
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"/></a>
+  <img src="https://img.shields.io/badge/Node.js-20-green.svg" alt="Node.js"/>
+  <img src="https://img.shields.io/badge/TypeScript-5-blue.svg" alt="TypeScript"/>
+  <img src="https://img.shields.io/badge/Docker-Compose-blue.svg" alt="Docker"/>
+</p>
 
 ---
 

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="180" viewBox="0 0 720 180" role="img" aria-label="scrubbed — self-hosted privacy">
+  <title>scrubbed</title>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .bar-anim { display: none; }
+      .bar-still { display: block !important; }
+    }
+  </style>
+  <defs>
+    <!-- Rounds the outer banner corners -->
+    <clipPath id="b-rx">
+      <rect width="720" height="180" rx="16"/>
+    </clipPath>
+    <!-- Rounds the mark tile corners; coords are in banner space (mark at x=30 y=30) -->
+    <clipPath id="m-rx">
+      <rect x="30" y="30" width="120" height="120" rx="14"/>
+    </clipPath>
+  </defs>
+
+  <!-- Banner background -->
+  <rect width="720" height="180" rx="16" fill="#0E1013"/>
+
+  <g clip-path="url(#b-rx)">
+    <!-- ── Mark ─────────────────────────────────────────────────────────────── -->
+    <!-- Tile -->
+    <rect x="30" y="30" width="120" height="120" rx="14" fill="#0E1013"/>
+
+    <!-- Data rows + eraser bar, clipped to the rounded tile -->
+    <g clip-path="url(#m-rx)">
+      <!-- Four data rows (faint → opaque, top → bottom) -->
+      <rect x="52" y="52" width="76" height="14" rx="3" fill="#F2EFE9" opacity="0.18"/>
+      <rect x="52" y="72" width="76" height="14" rx="3" fill="#F2EFE9" opacity="0.36"/>
+      <rect x="52" y="92" width="76" height="14" rx="3" fill="#F2EFE9" opacity="0.62"/>
+      <rect x="52" y="112" width="76" height="14" rx="3" fill="#F2EFE9"/>
+
+      <!-- Eraser bar — rotated -18° around mark centre (90,90 in banner space) -->
+      <g transform="rotate(-18 90 90)">
+        <!-- Animated variant (default) -->
+        <g class="bar-anim">
+          <animateTransform attributeName="transform" type="translate"
+            values="-180 0; 0 0; 0 0; -180 0"
+            keyTimes="0; 0.5; 0.7; 1"
+            dur="3.2s" repeatCount="indefinite"/>
+          <rect x="22" y="78" width="160" height="22" fill="#5E81AC"/>
+          <rect x="22" y="78" width="160" height="2"  fill="#0E1013" opacity="0.35"/>
+          <rect x="22" y="98" width="160" height="2"  fill="#0E1013" opacity="0.35"/>
+        </g>
+        <!-- Static dwell frame for prefers-reduced-motion -->
+        <g class="bar-still" style="display:none">
+          <rect x="22" y="78" width="160" height="22" fill="#5E81AC"/>
+          <rect x="22" y="78" width="160" height="2"  fill="#0E1013" opacity="0.35"/>
+          <rect x="22" y="98" width="160" height="2"  fill="#0E1013" opacity="0.35"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- ── Wordmark ────────────────────────────────────────────────────────── -->
+    <text x="174" y="99"
+      font-family="'Space Grotesk', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+      font-size="64" font-weight="600" letter-spacing="-2"
+      fill="#F2EFE9">scrubbed</text>
+
+    <!-- ── Tagline ─────────────────────────────────────────────────────────── -->
+    <text x="176" y="128"
+      font-family="'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', monospace"
+      font-size="13" font-weight="500" letter-spacing="2.4"
+      fill="#6B6F76">SELF-HOSTED PRIVACY</text>
+  </g>
+</svg>

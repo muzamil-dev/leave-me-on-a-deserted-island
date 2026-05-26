@@ -26,14 +26,23 @@ export default {
         nord15: '#b48ead', 
         
         
-        background: '#1a1e26', 
-        surface: '#2e3440',    
-        primary: '#5e81ac',    
-        secondary: '#d8dee9',  
-        border: '#3b4252',     
+        background: '#1a1e26',
+        surface: '#2e3440',
+        primary: '#5e81ac',
+        secondary: '#d8dee9',
+        border: '#3b4252',
+
+        // brand tokens
+        ink: '#0E1013',
+        paper: '#F2EFE9',
+        blue: '#5E81AC',
+        mute: '#6B6F76',
+        rule: '#D9D5CC',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        grotesk: ['Space Grotesk', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
     },
   },

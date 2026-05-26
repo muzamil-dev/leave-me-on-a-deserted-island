@@ -6,7 +6,7 @@
     <title>Scrubbed Docs | Automated Personal Data Removal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
         :root {
@@ -34,7 +34,7 @@
             align-items: center;
             backdrop-filter: blur(12px);
         }
-        .logo { display: flex; align-items: center; gap: 0.6rem; font-size: 1.2rem; font-weight: 800; color: var(--primary); text-decoration: none; white-space: nowrap; }
+        .logo { display: flex; align-items: center; gap: 12px; font-size: 1.25rem; font-weight: 600; font-family: 'Space Grotesk', sans-serif; color: var(--text-main); letter-spacing: -0.03em; text-decoration: none; white-space: nowrap; }
         .search-trigger { background: var(--nord1); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.75rem; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; width: 420px; transition: all 0.2s; }
         .search-trigger:hover { background: var(--nord2); border-color: var(--nord8); }
         .search-trigger .kcmd { margin-left: auto; background: var(--nord0); padding: 1px 5px; border-radius: 4px; font-size: 0.7rem; border: 1px solid var(--border); font-weight: 700; }
@@ -124,19 +124,49 @@
         .search-result-item .res-title { color: var(--nord8); font-weight: 800; font-size: 1.1rem; }
         .search-result-item .res-preview { color: var(--text-dim); font-size: 0.95rem; }
 
+        .hamburger-btn { display: none; background: var(--nord1); border: 1px solid var(--border); border-radius: 6px; color: var(--text-main); cursor: pointer; padding: 0.45rem; align-items: center; justify-content: center; position: absolute; left: 1rem; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; top: var(--header-height); background: rgba(0,0,0,0.6); z-index: 850; }
+        .sidebar-overlay.active { display: block; }
+
         @media (max-width: 1280px) { aside.toc-sidebar { display: none; } main { padding-right: 3rem; } }
-        @media (max-width: 1024px) { aside.sidebar { display: none; } main { padding: 4rem 1.5rem; } .search-trigger { width: 44px; min-width: 44px; padding: 0.5rem; } .search-trigger span, .search-trigger .kcmd { display: none; } }
+        @media (max-width: 1024px) {
+            .hamburger-btn { display: flex; }
+            aside.sidebar { position: fixed; top: var(--header-height); left: 0; bottom: 0; width: var(--sidebar-width); transform: translateX(-100%); transition: transform 0.25s ease; z-index: 900; display: block !important; }
+            aside.sidebar.open { transform: translateX(0); box-shadow: 8px 0 40px rgba(0,0,0,0.5); }
+            main { padding: 4rem 1.5rem; }
+            .search-trigger { width: 44px; min-width: 44px; padding: 0.5rem; }
+            .search-trigger span, .search-trigger .kcmd { display: none; }
+        }
     </style>
 </head>
 <body>
     <header class="top-bar">
-        <a href="#" class="logo"><i class="material-icons-round">security</i> Scrubbed</a>
-        <div class="search-trigger" onclick="openSearch()"><i class="material-icons-round">search</i><span>Search documentation...</span><span class="kcmd">⌘K</span></div>
+        <a href="#" class="logo" aria-label="Scrubbed">
+          <svg width="28" height="28" viewBox="0 0 120 120" style="display:block;flex-shrink:0;">
+            <defs><clipPath id="docs-mark-clip"><rect x="0" y="0" width="120" height="120" rx="14"/></clipPath></defs>
+            <rect x="0" y="0" width="120" height="120" rx="14" fill="#0E1013"/>
+            <g clip-path="url(#docs-mark-clip)">
+              <rect x="22" y="22" width="76" height="14" rx="3" fill="#F2EFE9" opacity="0.18"/>
+              <rect x="22" y="42" width="76" height="14" rx="3" fill="#F2EFE9" opacity="0.36"/>
+              <rect x="22" y="62" width="76" height="14" rx="3" fill="#F2EFE9" opacity="0.62"/>
+              <rect x="22" y="82" width="76" height="14" rx="3" fill="#F2EFE9"/>
+              <g transform="rotate(-18 60 60)">
+                <rect x="-8" y="48" width="160" height="22" fill="#5E81AC"/>
+                <rect x="-8" y="48" width="160" height="2" fill="#0E1013" opacity="0.35"/>
+                <rect x="-8" y="68" width="160" height="2" fill="#0E1013" opacity="0.35"/>
+              </g>
+            </g>
+          </svg>
+          scrubbed
+        </a>
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Open navigation"><i class="material-icons-round">menu</i></button>
+        <div class="search-trigger" onclick="openSearch()"><i class="material-icons-round">search</i><span>Search documentation...</span><span class="kcmd" id="search-kbd">⌘K</span></div>
         <div class="header-actions">
             <a href="https://github.com/muzamil-dev/leave-me-on-a-deserted-island" target="_blank" class="top-btn"><i class="material-icons-round">code</i> GitHub</a>
         </div>
     </header>
 
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="closeMobileSidebar()"></div>
     <div class="docs-wrapper">
         <aside class="sidebar">
             <div class="nav-group"><div class="nav-label">Core</div><nav>
@@ -162,6 +192,9 @@
 
         <main><div class="content-container">
             <section id="introduction" class="active">
+                <div style="margin: 0 0 3rem; border-radius: 14px; overflow: hidden; line-height: 0;">
+                    <img src="brand/scrubbed-banner-animated.svg" alt="scrubbed — self-hosted privacy" style="width: 100%; max-width: 720px; display: block;" loading="eager"/>
+                </div>
                 <h1>The Self-Hosted Privacy Engine</h1>
                 <p class="subtitle">Scrubbed is a high-performance, automated privacy tool designed to eliminate your digital footprint from the most persistent people-search data brokers.</p>
                 
@@ -169,6 +202,11 @@
                 <p>Today, your name, home address, phone history, and even the names of your family members are listed on hundreds of "people-search" websites. These brokers scrape public records and social media to build detailed profiles on private citizens, selling this data to anyone with a credit card.</p>
                 <p>Manually removing yourself from these sites is a full-time job. Each broker requires a unique opt-out form, email verification, and constant re-checking as data often reappears weeks later when the broker refreshes their database. This is where Scrubbed steps in, providing a set-and-forget solution for individual privacy.</p>
                 <p>Scrubbed was born out of a necessity for transparent, low-cost privacy tools. While many commercial services claim to protect you, they often require you to trust them with the very data you are trying to hide. By making Scrubbed open-source, we invite the community to audit our methods and contribute to a growing library of broker definitions.</p>
+
+                <div style="display:flex; gap: 1rem; margin: 2.5rem 0 4rem;">
+                    <a href="#setup" class="top-btn" style="padding: 0.75rem 1.5rem; font-size: 1rem; background: var(--primary); color: var(--bg); border-color: var(--primary); border-radius: 8px;"><i class="material-icons-round">rocket_launch</i> Get Started</a>
+                    <a href="#how-it-works" class="top-btn" style="padding: 0.75rem 1.5rem; font-size: 1rem; border-radius: 8px;"><i class="material-icons-round">info</i> How It Works</a>
+                </div>
 
                 <h2 id="our-solution">Our Solution</h2>
                 <p>Scrubbed automates this entire lifecycle. By combining advanced browser automation (Playwright) with a sophisticated domain-specific language for broker definitions, Scrubbed searches, identifies, and submits removal requests on your behalf.</p>
@@ -189,8 +227,7 @@
 
                 <h2 id="privacy-residency">Local-First Residency</h2>
                 <p>Your profile data is stored in a locally encrypted SQLite database. When you run Scrubbed, the communication happens directly between your IP address and the data broker. There is no middleman service that can see your search queries or the profiles we've discovered. You own the hardware, you own the database, and you own the privacy.</p>
-                <p>By using a master password, Scrubbed secures your IMAP credentials and sensitive profile fields using AES-256-CBC. This ensures that even if your hardware is compromised, your privacy configurations remain unreadable without the key. We prioritize security at rest as much as we do privacy in transit, ensuring a zero-knowledge architecture.</p>
-                <p>Security is not an after-thought; it is the foundation. By leveraging Node.js's native crypto libraries, we ensure that your IMAP passwords and other credentials are never stored in a reversible format without the master key. This ensures that your privacy remains intact even if your local storage is physically accessed.</p>
+                <p>By using a master password, Scrubbed secures your IMAP credentials and sensitive profile fields using AES-256-CBC via Node.js's native crypto module. This ensures that even if your hardware is compromised, your privacy configurations remain unreadable without the key. We prioritize security at rest as much as we do privacy in transit, ensuring a zero-knowledge architecture.</p>
 
                 <div class="page-nav">
                     <a href="#introduction" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Introduction</span></div></a>
@@ -200,7 +237,7 @@
 
             <section id="how-it-works">
                 <h1>How It Works</h1>
-                <p class="subtitle">A deep dive into the four phases of a Scrubbed removal sweep.</p>
+                <p class="subtitle">A deep dive into the three phases of a Scrubbed removal sweep.</p>
 
                 <h2 id="scout-tech">Phase 1: The Scout Engine</h2>
                 <p>The Scout phase is a specialized search operation. The Runner service launches a headless Chromium instance powered by Playwright. Using <code>playwright-extra-stealth</code>, the engine mimics a real user by randomizing user agents, spoofing WebGL fingerprints, and introducing natural mouse movements. This ensures brokers cannot easily block the engine as a bot.</p>
@@ -303,7 +340,7 @@
 
                 <h2 id="validation">Validation</h2>
                 <p>After the containers are healthy, run these quick checks to ensure the engine can communicate with the browser environment and the database.</p>
-                <table class="excel-table"><thead><tr><th>Service</th><th>Check</th><th>Expected Result</th></tr></thead><tbody>
+                <table class="excel-table"><thead><tr><th>Service</th><th>Check</th><th>Command / Output</th></tr></thead><tbody>
                     <tr><td>API</td><td>Health Ping</td><td><code>curl http://localhost:3001/health</code></td></tr>
                     <tr><td>Runner</td><td>Polling Logs</td><td><code>docker compose logs runner</code></td></tr>
                     <tr><td>Web</td><td>Interface Access</td><td>Browse <code>localhost:3000</code></td></tr>
@@ -325,7 +362,7 @@
                     <tr><td><code>DB_PATH</code></td><td><code>/app/data/db</code></td><td>The internal storage path for the SQLite file.</td></tr>
                     <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Verbosity of the Runner and API logs.</td></tr>
                 </tbody></table>
-                <p>Proper management of the `.env` file is critical for security. We recommend rotating your `MASTER_PASSWORD` periodically and ensuring that the file permissions are restricted to the user running the Docker containers. Never commit your `.env` file to a public repository.</p>
+                <p>Proper management of the <code>.env</code> file is critical for security. We recommend rotating your <code>MASTER_PASSWORD</code> periodically and ensuring that the file permissions are restricted to the user running the Docker containers. Never commit your <code>.env</code> file to a public repository.</p>
                 <div class="page-nav">
                     <a href="#setup" class="nav-btn"><i class="material-icons-round">arrow_back</i><div class="nav-label-stack"><span class="dir">Previous</span><span class="title">Installation</span></div></a>
                     <a href="#cli-usage" class="nav-btn next"><div class="nav-label-stack"><span class="dir">Next</span><span class="title">Usage Guide</span></div><i class="material-icons-round">arrow_forward</i></a>
@@ -339,8 +376,26 @@
                 <table class="excel-table"><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
                     <tr><td><code>s</code></td><td>Trigger an immediate, manual removal sweep</td></tr>
                     <tr><td><code>r</code></td><td>Force the UI to refresh data from the API</td></tr>
-                    <tr><td><code>tab</code></td><td>Cycle focus through the different TUI panels</td></tr>
-                    <tr><td><code>q</code></td><td>Safely terminate the CLI interface</td></tr>
+                    <tr><td><code>p</code></td><td>Toggle the profile details overlay</td></tr>
+                    <tr><td><code>e</code></td><td>Edit profile fields (available inside the profile overlay)</td></tr>
+                    <tr><td><code>?</code></td><td>Toggle the help overlay</td></tr>
+                    <tr><td><code>:</code></td><td>Open command prompt for advanced commands</td></tr>
+                    <tr><td><code>tab</code></td><td>Move focus to the logs panel</td></tr>
+                    <tr><td><code>↑ / ↓</code> or <code>j / k</code></td><td>Navigate the brokers list</td></tr>
+                    <tr><td><code>enter</code></td><td>Open the selected broker's discovered profile URL in a browser</td></tr>
+                    <tr><td><code>esc</code></td><td>Unfocus the log panel / close overlays and return to brokers</td></tr>
+                    <tr><td><code>q</code> or <code>Ctrl+C</code></td><td>Safely terminate the CLI interface</td></tr>
+                </tbody></table>
+                <h3 id="command-prompt">Command Prompt</h3>
+                <p>Press <code>:</code> to open the command prompt, then type any of the following:</p>
+                <table class="excel-table"><thead><tr><th>Command</th><th>Alias</th><th>Action</th></tr></thead><tbody>
+                    <tr><td><code>scan</code></td><td><code>s</code></td><td>Start a new scan</td></tr>
+                    <tr><td><code>refresh</code></td><td><code>r</code></td><td>Refresh all data</td></tr>
+                    <tr><td><code>clear</code></td><td></td><td>Clear the log output</td></tr>
+                    <tr><td><code>profile</code></td><td></td><td>Show the profile overlay</td></tr>
+                    <tr><td><code>profile edit</code></td><td><code>pe</code></td><td>Edit profile fields</td></tr>
+                    <tr><td><code>help</code></td><td><code>?</code></td><td>Show the help overlay</td></tr>
+                    <tr><td><code>quit</code></td><td><code>q</code></td><td>Quit the application</td></tr>
                 </tbody></table>
                 <h2 id="shell-usage">Shell Commands</h2>
                 <p>The CLI is designed for speed and power. Below is a complete reference of all commands available in the <code>scrubbed</code> utility.</p>
@@ -409,7 +464,7 @@ scrubbed discovered                 # list discovered profile URLs</code></pre>
                 <p>We do not use any telemetry, tracking pixels, or third-party analytics (like Google Analytics) within the application or the dashboard. We believe that a privacy tool must, first and foremost, be invisible to everyone except its owner. Your usage of Scrubbed is entirely private, and we do not collect metadata about when or how you use the tool.</p>
 
                 <h2 id="encryption-standard">Encryption Standards</h2>
-                <p>Sensitive credentials, such as your IMAP password for email verification, are never stored in plain text. Scrubbed uses the Web Crypto API to implement industry-standard encryption. We use a salted PBKDF2 derivation function to transform your `MASTER_PASSWORD` into a unique encryption key, making brute-force attacks on your local database computationally expensive.</p>
+                <p>Sensitive credentials, such as your IMAP password for email verification, are never stored in plain text. Scrubbed uses Node.js's native crypto module to implement industry-standard encryption. We use a salted PBKDF2 derivation function to transform your <code>MASTER_PASSWORD</code> into a unique encryption key, making brute-force attacks on your local database computationally expensive.</p>
                 <p>This encryption applies not just to passwords, but to any field marked as "sensitive" in the database schema. This includes your specific search queries and the exact URLs where your profiles were found. We treat every piece of your identity as highly confidential, ensuring that your privacy is protected even from other users of the same machine.</p>
 
                 <h2 id="auditability">Auditability & Open Source</h2>
@@ -484,25 +539,17 @@ scrubbed discovered                 # list discovered profile URLs</code></pre>
 
         function navigate() {
             const hash = window.location.hash || "#introduction";
-            const targetId = hash.split('-')[0].substring(1) || "introduction";
-            const section = document.getElementById(targetId);
-            if (section && section.tagName === 'SECTION') {
-                sections.forEach(s => s.classList.remove("active"));
-                section.classList.add("active");
-                window.scrollTo(0, 0);
-            } else {
-                const el = document.getElementById(hash.substring(1));
-                const parent = el?.closest('section');
-                if (parent) {
-                    sections.forEach(s => s.classList.remove("active"));
-                    parent.classList.add("active");
-                    el.scrollIntoView();
-                } else {
-                    sections.forEach(s => s.classList.remove("active"));
-                    sections[0].classList.add("active");
-                    window.scrollTo(0, 0);
-                }
+            const targetId = hash.substring(1) || "introduction";
+            const el = document.getElementById(targetId);
+            let targetSection = null;
+            if (el && el.tagName === 'SECTION') {
+                targetSection = el;
+            } else if (el) {
+                targetSection = el.closest('section');
             }
+            sections.forEach(s => s.classList.remove("active"));
+            (targetSection || sections[0]).classList.add("active");
+            window.scrollTo(0, 0);
             const activeId = document.querySelector("section.active").id;
             navLinks.forEach(link => link.classList.toggle("active", link.getAttribute("href") === "#" + activeId));
             generateTOC();
@@ -538,8 +585,20 @@ scrubbed discovered                 # list discovered profile URLs</code></pre>
             });
         }
 
-        window.addEventListener("hashchange", navigate);
-        window.addEventListener("load", () => { navigate(); initCopyButtons(); });
+        function openMobileSidebar() { document.querySelector('aside.sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('active'); }
+        function closeMobileSidebar() { document.querySelector('aside.sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('active'); }
+
+        window.addEventListener("hashchange", () => { navigate(); closeMobileSidebar(); });
+        window.addEventListener("load", () => {
+            navigate();
+            initCopyButtons();
+            const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+            document.getElementById('search-kbd').textContent = isMac ? '⌘K' : 'Ctrl+K';
+            document.getElementById('hamburger-btn').addEventListener('click', () => {
+                const sidebar = document.querySelector('aside.sidebar');
+                sidebar.classList.contains('open') ? closeMobileSidebar() : openMobileSidebar();
+            });
+        });
         window.addEventListener("scroll", highlightTOC);
 
         const searchModal = document.getElementById('search-modal');
